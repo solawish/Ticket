@@ -1,0 +1,24 @@
+﻿using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using System.Reflection;
+using Ticket.Application.Options;
+
+namespace Ticket.Application;
+
+public static class DependencyInjection
+{
+    public static IServiceCollection AddApplicationServices(this IServiceCollection services, IConfiguration configuration)
+    {
+        services.AddMediatR(cfg => cfg.RegisterServicesFromAssemblies(Assembly.GetExecutingAssembly()));
+
+        services.AddHttpClient("TicketPlus", client =>
+        {
+        });
+
+        services.Configure<TicketPlusOptions>(
+            configuration.GetSection(nameof(TicketPlusOptions))
+        );
+
+        return services;
+    }
+}
