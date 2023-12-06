@@ -1,7 +1,7 @@
 ﻿using MediatR;
 using Ticket.Domain.Entities.TicketPlus;
 
-namespace Ticket.Application.Commands.TicketPlus;
+namespace Ticket.Application.Commands.TicketPlus.CreateReserveCommand;
 
 public class CreateReserveCommand : IRequest<CreateReserveDto>
 {
@@ -14,4 +14,6 @@ public class CreateReserveCommand : IRequest<CreateReserveDto>
     public bool ConsecutiveSeats { get; set; }
 
     public bool FinalizedSeats { get; set; }
+
+    public string Token { get; set; }
 }

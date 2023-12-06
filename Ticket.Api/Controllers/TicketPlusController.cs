@@ -1,7 +1,8 @@
 ﻿using Asp.Versioning;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
-using Ticket.Application.Command.TicketPlus;
+using Ticket.Application.Commands.TicketPlus.CreateReserveCommand;
+using Ticket.Application.Commands.TicketPlus.GenerateRecaptchCommand;
 using Ticket.Application.Queries.TicketPlus.GetProductInfoQuery;
 
 namespace Ticket.Api.Controllers;
@@ -50,6 +51,21 @@ public class TicketPlusController : ControllerBase
     public async Task<IActionResult> Post([FromBody] CreateReserveCommand createReserveCommand)
     {
         var result = await _mediator.Send(createReserveCommand);
+        return Ok(result);
+    }
+
+    /// <summary>
+    /// 產生驗證碼圖片
+    /// </summary>
+    /// <param name="generateRecaptchCommand"></param>
+    /// <returns></returns>
+    [HttpPost]
+    [Route("Recaptch")]
+    [ProducesResponseType(typeof(GenerateRecaptchDto), 200)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> Post([FromBody] GenerateRecaptchCommand generateRecaptchCommand)
+    {
+        var result = await _mediator.Send(generateRecaptchCommand);
         return Ok(result);
     }
 }

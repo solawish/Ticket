@@ -4,14 +4,17 @@ using System.Net.Http.Json;
 using System.Text.Json;
 using Ticket.Application.Options;
 
-namespace Ticket.Application.Command.TicketPlus;
+namespace Ticket.Application.Commands.TicketPlus.GenerateRecaptchCommand;
 
-public class CreateReserveCommandHandler : IRequestHandler<CreateReserveCommand, CreateReserveDto>
+/// <summary>
+/// 產生驗證碼圖片
+/// </summary>
+public class GenerateRecaptchCommandHandler : IRequestHandler<GenerateRecaptchCommand, GenerateRecaptchDto>
 {
     private readonly IHttpClientFactory _httpClientFactory;
     private readonly IOptions<TicketPlusOptions> _ticketPlusOptions;
 
-    public CreateReserveCommandHandler(
+    public GenerateRecaptchCommandHandler(
         IHttpClientFactory httpClientFactory,
         IOptions<TicketPlusOptions> ticketPlusOptions)
     {
@@ -19,9 +22,7 @@ public class CreateReserveCommandHandler : IRequestHandler<CreateReserveCommand,
         _ticketPlusOptions = ticketPlusOptions;
     }
 
-    public async Task<CreateReserveDto> Handle(
-        CreateReserveCommand request,
-        CancellationToken cancellationToken)
+    public async Task<GenerateRecaptchDto> Handle(GenerateRecaptchCommand request, CancellationToken cancellationToken)
     {
         var httpClient = _httpClientFactory.CreateClient(_ticketPlusOptions.Value.Name);
 
@@ -34,13 +35,16 @@ public class CreateReserveCommandHandler : IRequestHandler<CreateReserveCommand,
                 options: new JsonSerializerOptions
                 {
                     PropertyNameCaseInsensitive = true
-                })
+                }),
+            Headers =
+            {
+                { "Authorization", $"Bearer {request.Token}" }
+            }
         };
 
         var response = await httpClient.SendAsync(httpRequest, cancellationToken);
         response.EnsureSuccessStatusCode();
 
-        var result = await response.Content.ReadFromJsonAsync<CreateReserveDto>(cancellationToken: cancellationToken);
-        return result;
+        return await response.Content.ReadFromJsonAsync<GenerateRecaptchDto>(cancellationToken: cancellationToken);
     }
 }
