@@ -28,7 +28,7 @@ public class GenerateRecaptchCommandHandler : IRequestHandler<GenerateRecaptchCo
 
         var httpRequest = new HttpRequestMessage(
             HttpMethod.Post,
-            $"{_ticketPlusOptions.Value.ReserveUrl}")
+            $"{_ticketPlusOptions.Value.GenerateRecaptchaUrl}")
         {
             Content = JsonContent.Create(
                 request,
