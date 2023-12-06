@@ -1,7 +1,7 @@
 ﻿using MediatR;
 using Ticket.Domain.Entities.TicketPlus;
 
-namespace Ticket.Application.Command.TicketPlus;
+namespace Ticket.Application.Commands.TicketPlus;
 
 public class CreateReserveCommand : IRequest<CreateReserveDto>
 {
