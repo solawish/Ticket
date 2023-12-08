@@ -6,14 +6,14 @@ using Ticket.Application.Options;
 namespace Ticket.Application.Queries.TicketPlus.GetProductInfoQuery;
 
 /// <summary>
-/// 取得活動資訊
+/// 取得S3活動資訊
 /// </summary>
-public class GetProductInfoQueryHandler : IRequestHandler<GetProductInfoQuery, GetProductInfoDto>
+public class GetS3ProductInfoQueryHandler : IRequestHandler<GetS3ProductInfoQuery, GetS3ProductInfoDto>
 {
     private readonly IHttpClientFactory _httpClientFactory;
     private readonly IOptions<TicketPlusOptions> _ticketPlusOptions;
 
-    public GetProductInfoQueryHandler(
+    public GetS3ProductInfoQueryHandler(
         IHttpClientFactory httpClientFactory,
         IOptions<TicketPlusOptions> ticketPlusOptions)
     {
@@ -21,7 +21,7 @@ public class GetProductInfoQueryHandler : IRequestHandler<GetProductInfoQuery, G
         _ticketPlusOptions = ticketPlusOptions;
     }
 
-    public async Task<GetProductInfoDto> Handle(GetProductInfoQuery request, CancellationToken cancellationToken)
+    public async Task<GetS3ProductInfoDto> Handle(GetS3ProductInfoQuery request, CancellationToken cancellationToken)
     {
         var httpClient = _httpClientFactory.CreateClient(_ticketPlusOptions.Value.Name);
 
@@ -29,12 +29,12 @@ public class GetProductInfoQueryHandler : IRequestHandler<GetProductInfoQuery, G
         var pahtArgu = $"event/{request.ActivityId}/products.json";
         var httpRequest = new HttpRequestMessage(
             HttpMethod.Get,
-            $"{_ticketPlusOptions.Value.ConfigUrl}?path={pahtArgu}");
+            $"{_ticketPlusOptions.Value.S3ConfigUrl}?path={pahtArgu}");
 
         var response = await httpClient.SendAsync(httpRequest, cancellationToken);
         response.EnsureSuccessStatusCode();
 
-        var result = await response.Content.ReadFromJsonAsync<GetProductInfoDto>(cancellationToken: cancellationToken);
+        var result = await response.Content.ReadFromJsonAsync<GetS3ProductInfoDto>(cancellationToken: cancellationToken);
         return result;
     }
 }

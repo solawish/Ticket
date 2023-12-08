@@ -3,7 +3,7 @@ using Microsoft.Extensions.Options;
 using System.Net.Http.Json;
 using Ticket.Application.Options;
 
-namespace Ticket.Application.Queries.TicketPlus.GetAccessToken;
+namespace Ticket.Application.Queries.TicketPlus.GetAccessTokenQuery;
 
 /// <summary>
 /// 登入(取得AccessToken)

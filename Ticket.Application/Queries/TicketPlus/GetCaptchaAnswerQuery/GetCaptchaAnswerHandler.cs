@@ -7,7 +7,7 @@ using System.Text.RegularExpressions;
 using Ticket.Application.Helpers;
 using Ticket.Application.Services;
 
-namespace Ticket.Application.Queries.TicketPlus.GetCaptchaAnswer;
+namespace Ticket.Application.Queries.TicketPlus.GetCaptchaAnswerQuery;
 
 /// <summary>
 /// 解析驗證碼
@@ -21,8 +21,8 @@ public class GetCaptchaAnswerHandler : IRequestHandler<GetCaptchaAnswerQuery, Ge
         GoogleVisionService googleVisionService,
         OrcHelpers orcHelpers)
     {
-        this._googleVisionService = googleVisionService;
-        this._orcHelpers = orcHelpers;
+        _googleVisionService = googleVisionService;
+        _orcHelpers = orcHelpers;
     }
 
     public async Task<GetCaptchaAnswerDto> Handle(GetCaptchaAnswerQuery request, CancellationToken cancellationToken)

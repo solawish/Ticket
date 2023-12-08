@@ -2,9 +2,9 @@
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Ticket.Application.Commands.TicketPlus.CreateReserveCommand;
-using Ticket.Application.Commands.TicketPlus.GenerateRecaptchCommand;
-using Ticket.Application.Queries.TicketPlus.GetAccessToken;
-using Ticket.Application.Queries.TicketPlus.GetCaptchaAnswer;
+using Ticket.Application.Commands.TicketPlus.GenerateCaptchaCommand;
+using Ticket.Application.Queries.TicketPlus.GetAccessTokenQuery;
+using Ticket.Application.Queries.TicketPlus.GetCaptchaAnswerQuery;
 using Ticket.Application.Queries.TicketPlus.GetProductInfoQuery;
 
 namespace Ticket.Api.Controllers;
@@ -30,15 +30,15 @@ public class TicketPlusController : ControllerBase
     }
 
     /// <summary>
-    /// 取得票券資訊
+    /// 取得S3票券資訊
     /// </summary>
     /// <param name="getProductInfoQuery"></param>
     /// <returns></returns>
     [HttpGet]
-    [Route("ProductInfo")]
-    [ProducesResponseType(typeof(GetProductInfoDto), 200)]
+    [Route("S3ProductInfo")]
+    [ProducesResponseType(typeof(GetS3ProductInfoDto), 200)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> Get([FromQuery] GetProductInfoQuery getProductInfoQuery)
+    public async Task<IActionResult> Get([FromQuery] GetS3ProductInfoQuery getProductInfoQuery)
     {
         var result = await _mediator.Send(getProductInfoQuery);
         return Ok(result);

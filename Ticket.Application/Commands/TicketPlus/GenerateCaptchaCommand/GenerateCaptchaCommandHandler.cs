@@ -4,7 +4,7 @@ using System.Net.Http.Json;
 using System.Text.Json;
 using Ticket.Application.Options;
 
-namespace Ticket.Application.Commands.TicketPlus.GenerateRecaptchCommand;
+namespace Ticket.Application.Commands.TicketPlus.GenerateCaptchaCommand;
 
 /// <summary>
 /// 產生驗證碼圖片
