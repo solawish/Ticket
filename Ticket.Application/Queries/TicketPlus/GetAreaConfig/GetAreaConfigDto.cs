@@ -13,5 +13,5 @@ public class GetAreaConfigDto
 
 public class AreaConfiResult
 {
-    public List<TicketArea> TicketArea { get; set; }
+    public List<TicketArea> TicketArea { get; set; } = new List<TicketArea>();
 }

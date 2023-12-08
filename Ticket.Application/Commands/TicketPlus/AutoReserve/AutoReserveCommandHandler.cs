@@ -18,15 +18,15 @@ namespace Ticket.Application.Commands.TicketPlus.AutoReserve;
 /// <summary>
 /// 自動預約
 /// </summary>
-public class AutoReserveHandler : IRequestHandler<AutoReserveCommand, AutoReserveDto>
+public class AutoReserveCommandHandler : IRequestHandler<AutoReserveCommand, AutoReserveDto>
 {
     private readonly IMediator _mediator;
-    private readonly ILogger<AutoReserveHandler> _logger;
+    private readonly ILogger<AutoReserveCommandHandler> _logger;
     private readonly IMemoryCache _memoryCache;
 
-    public AutoReserveHandler(
+    public AutoReserveCommandHandler(
         IMediator mediator,
-        ILogger<AutoReserveHandler> logger,
+        ILogger<AutoReserveCommandHandler> logger,
         IMemoryCache memoryCache
         )
     {
@@ -37,49 +37,50 @@ public class AutoReserveHandler : IRequestHandler<AutoReserveCommand, AutoReserv
 
     public async Task<AutoReserveDto> Handle(AutoReserveCommand request, CancellationToken cancellationToken)
     {
-        GetS3ProductInfoDto s3ProductInfoQueryDto;
         // 透過 ActivityId 取得S3活動資訊
-        if (_memoryCache.TryGetValue(string.Format(Const.S3ProductInfoCacheKey, request.ActivityId), out GetS3ProductInfoDto cachesS3ProductInfoQueryDto))
-        {
-            s3ProductInfoQueryDto = cachesS3ProductInfoQueryDto;
-        }
-        s3ProductInfoQueryDto = await _mediator.Send(new GetS3ProductInfoQuery
-        {
-            ActivityId = request.ActivityId
-        }, cancellationToken);
+        var s3ProductInfoQueryDto = _memoryCache.TryGetValue(
+            string.Format(Const.S3ProductInfoCacheKey, request.ActivityId),
+            out GetS3ProductInfoDto cachesS3ProductInfoQueryDto)
+            ? cachesS3ProductInfoQueryDto
+            : await _mediator.Send(new GetS3ProductInfoQuery
+            {
+                ActivityId = request.ActivityId
+            }, cancellationToken);
         _logger.LogInformation($"GetS3ProductInfoQuery: {JsonSerializer.Serialize(s3ProductInfoQueryDto)}");
 
         // 再從結果中的ProductId去取得票券的資訊
-        GetProductConfigDto ticketConfigQueryDto;
-        if (_memoryCache.TryGetValue(string.Format(Const.ProductConfigCacheKey, request.ActivityId), out GetProductConfigDto cachesTicketConfigQueryDto))
-        {
-            ticketConfigQueryDto = cachesTicketConfigQueryDto;
-        }
-        ticketConfigQueryDto = await _mediator.Send(new GetProductConfigQuery
-        {
-            ProductId = s3ProductInfoQueryDto.Products.Select(x => x.ProductId)
-        }, cancellationToken);
+        var ticketConfigQueryDto = _memoryCache.TryGetValue(
+            string.Format(Const.ProductConfigCacheKey, request.ActivityId),
+            out GetProductConfigDto cachesTicketConfigQueryDto)
+            ? cachesTicketConfigQueryDto
+            : await _mediator.Send(new GetProductConfigQuery
+            {
+                ProductId = s3ProductInfoQueryDto.Products.Select(x => x.ProductId)
+            }, cancellationToken);
         _logger.LogInformation($"GetProductConfigQuery: {JsonSerializer.Serialize(ticketConfigQueryDto)}");
 
         // 取得票區的資訊
-        GetAreaConfigDto areaConfigQueryDto;
-        if (_memoryCache.TryGetValue(string.Format(Const.AreaConfigCacheKey, request.ActivityId), out GetAreaConfigDto cachesAreaConfigQueryDto))
-        {
-            areaConfigQueryDto = cachesAreaConfigQueryDto;
-        }
-        areaConfigQueryDto = await _mediator.Send(new GetAreaConfigQuery
-        {
-            TicketAreaId = s3ProductInfoQueryDto.Products.Where(x => string.IsNullOrEmpty(x.TicketAreaId) is false).Select(x => x.TicketAreaId)
-        }, cancellationToken);
+        var areaConfigQueryDto = _memoryCache.TryGetValue(
+            string.Format(Const.AreaConfigCacheKey, request.ActivityId),
+            out GetAreaConfigDto cachesAreaConfigQueryDto)
+            ? cachesAreaConfigQueryDto
+            : await _mediator.Send(new GetAreaConfigQuery
+            {
+                TicketAreaId = s3ProductInfoQueryDto.Products.Where(x => string.IsNullOrEmpty(x.TicketAreaId) is false).Select(x => x.TicketAreaId)
+            }, cancellationToken);
         _logger.LogInformation($"GetAreaConfigQuery: {JsonSerializer.Serialize(areaConfigQueryDto)}");
 
         // 取得登入的accessToken
-        var accessTokenDto = await _mediator.Send(new GetAccessTokenQuery()
-        {
-            CountryCode = request.CountryCode,
-            Mobile = request.Mobile,
-            Password = request.Password
-        }, cancellationToken);
+        var accessTokenDto = _memoryCache.TryGetValue(
+            string.Format(Const.UserCacheKey, request.Mobile),
+            out GetAccessTokenDto cacheAccessTokenDto)
+            ? cacheAccessTokenDto
+            : await _mediator.Send(new GetAccessTokenQuery()
+            {
+                CountryCode = request.CountryCode,
+                Mobile = request.Mobile,
+                Password = request.Password
+            }, cancellationToken);
         _logger.LogInformation($"GetAccessTokenQuery: {JsonSerializer.Serialize(accessTokenDto)}");
 
         // 是否需要重新產生驗證碼
@@ -161,6 +162,13 @@ public class AutoReserveHandler : IRequestHandler<AutoReserveCommand, AutoReserv
                 isPending = true;
                 await Task.Delay(1000, cancellationToken);
                 continue;
+            }
+
+            // 如果是其他已經有訂單也回傳成功
+            if (reserveResultDto.ErrCode.Equals(((int)ErrorCodeEnum.UserLimitExceeded).ToString()))
+            {
+                _logger.LogInformation($"已經有訂單了");
+                return new AutoReserveDto { CreateReserveDto = reserveResultDto };
             }
 
             // 如果是成功就回傳成功

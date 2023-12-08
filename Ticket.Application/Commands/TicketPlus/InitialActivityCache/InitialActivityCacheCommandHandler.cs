@@ -11,15 +11,15 @@ namespace Ticket.Application.Commands.TicketPlus.InitialActivityCache;
 /// <summary>
 /// 初始化活動快取
 /// </summary>
-public class InitialActivityCacheHandler : IRequestHandler<InitialActivityCacheCommand, InitialActivityCacheDto>
+public class InitialActivityCacheCommandHandler : IRequestHandler<InitialActivityCacheCommand, InitialActivityCacheDto>
 {
     private readonly IMediator _mediator;
-    private readonly ILogger<InitialActivityCacheHandler> _logger;
+    private readonly ILogger<InitialActivityCacheCommandHandler> _logger;
     private readonly IMemoryCache _memoryCache;
 
-    public InitialActivityCacheHandler(
+    public InitialActivityCacheCommandHandler(
         IMediator mediator,
-        ILogger<InitialActivityCacheHandler> logger,
+        ILogger<InitialActivityCacheCommandHandler> logger,
         IMemoryCache memoryCache
         )
     {

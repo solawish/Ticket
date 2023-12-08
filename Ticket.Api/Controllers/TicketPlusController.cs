@@ -5,6 +5,7 @@ using Ticket.Application.Commands.TicketPlus.AutoReserve;
 using Ticket.Application.Commands.TicketPlus.CreateReserve;
 using Ticket.Application.Commands.TicketPlus.GenerateCaptcha;
 using Ticket.Application.Commands.TicketPlus.InitialActivityCache;
+using Ticket.Application.Commands.TicketPlus.InitialUser;
 using Ticket.Application.Queries.TicketPlus.GetAccessToken;
 using Ticket.Application.Queries.TicketPlus.GetAreaConfig;
 using Ticket.Application.Queries.TicketPlus.GetCaptchaAnswer;
@@ -165,6 +166,21 @@ public class TicketPlusController : ControllerBase
     public async Task<IActionResult> Get([FromQuery] GetAreaConfigQuery getAreaConfigQuery)
     {
         var result = await _mediator.Send(getAreaConfigQuery);
+        return Ok(result);
+    }
+
+    /// <summary>
+    /// 初始化使用者
+    /// </summary>
+    /// <param name="initialUserCommand"></param>
+    /// <returns></returns>
+    [HttpPut]
+    [Route("User/Cache")]
+    [ProducesResponseType(typeof(InitialUserDto), 200)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> Get([FromQuery] InitialUserCommand initialUserCommand)
+    {
+        var result = await _mediator.Send(initialUserCommand);
         return Ok(result);
     }
 }
