@@ -5,6 +5,7 @@ using Ticket.Application.Commands.TicketPlus.CreateReserve;
 using Ticket.Application.Commands.TicketPlus.GenerateCaptcha;
 using Ticket.Application.Queries.TicketPlus.GetAccessToken;
 using Ticket.Application.Queries.TicketPlus.GetCaptchaAnswer;
+using Ticket.Application.Queries.TicketPlus.GetProductConfig;
 using Ticket.Application.Queries.TicketPlus.GetS3ProductInfo;
 
 namespace Ticket.Api.Controllers;
@@ -101,6 +102,21 @@ public class TicketPlusController : ControllerBase
     public async Task<IActionResult> Get([FromBody] GetCaptchaAnswerQuery getCaptchaAnswerQuery)
     {
         var result = await _mediator.Send(getCaptchaAnswerQuery);
+        return Ok(result);
+    }
+
+    /// <summary>
+    /// 取得票券的資訊
+    /// </summary>
+    /// <param name="getProductConfigQuery"></param>
+    /// <returns></returns>
+    [HttpGet]
+    [Route("ProductConfig")]
+    [ProducesResponseType(typeof(GetProductConfigDto), 200)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> Get([FromQuery] GetProductConfigQuery getProductConfigQuery)
+    {
+        var result = await _mediator.Send(getProductConfigQuery);
         return Ok(result);
     }
 }
