@@ -80,6 +80,21 @@ public class TicketPlusController : ControllerBase
     }
 
     /// <summary>
+    /// 登入(取得AccessToken)
+    /// </summary>
+    /// <param name="getAccessTokenQuery"></param>
+    /// <returns></returns>
+    [HttpGet]
+    [Route("AccessToken")]
+    [ProducesResponseType(typeof(GetAccessTokenDto), 200)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> Get([FromQuery] GetAccessTokenQuery getAccessTokenQuery)
+    {
+        var result = await _mediator.Send(getAccessTokenQuery);
+        return Ok(result);
+    }
+
+    /// <summary>
     /// 初始化活動快取
     /// </summary>
     /// <param name="initialActivityCacheCommand"></param>
@@ -106,21 +121,6 @@ public class TicketPlusController : ControllerBase
     public async Task<IActionResult> Get([FromQuery] InitialUserCommand initialUserCommand)
     {
         var result = await _mediator.Send(initialUserCommand);
-        return Ok(result);
-    }
-
-    /// <summary>
-    /// 登入(取得AccessToken)
-    /// </summary>
-    /// <param name="getAccessTokenQuery"></param>
-    /// <returns></returns>
-    [HttpGet]
-    [Route("AccessToken")]
-    [ProducesResponseType(typeof(GetAccessTokenDto), 200)]
-    [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> Get([FromQuery] GetAccessTokenQuery getAccessTokenQuery)
-    {
-        var result = await _mediator.Send(getAccessTokenQuery);
         return Ok(result);
     }
 
