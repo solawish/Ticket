@@ -1,6 +1,7 @@
 ﻿using Asp.Versioning;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
+using Ticket.Application.Commands.TicketPlus.AutoReserve;
 using Ticket.Application.Commands.TicketPlus.CreateReserve;
 using Ticket.Application.Commands.TicketPlus.GenerateCaptcha;
 using Ticket.Application.Queries.TicketPlus.GetAccessToken;
@@ -117,6 +118,21 @@ public class TicketPlusController : ControllerBase
     public async Task<IActionResult> Get([FromQuery] GetProductConfigQuery getProductConfigQuery)
     {
         var result = await _mediator.Send(getProductConfigQuery);
+        return Ok(result);
+    }
+
+    /// <summary>
+    /// 自動預約
+    /// </summary>
+    /// <param name="autoReserveCommand"></param>
+    /// <returns></returns>
+    [HttpPost]
+    [Route("AutoReserve")]
+    [ProducesResponseType(typeof(AutoReserveDto), 200)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> Post([FromBody] AutoReserveCommand autoReserveCommand)
+    {
+        var result = await _mediator.Send(autoReserveCommand);
         return Ok(result);
     }
 }

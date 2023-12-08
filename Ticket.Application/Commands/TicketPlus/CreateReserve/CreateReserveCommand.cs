@@ -9,11 +9,11 @@ public class CreateReserveCommand : IRequest<CreateReserveDto>
 
     public Captcha Captcha { get; set; }
 
-    public bool ReserveSeats { get; set; }
+    public bool ReserveSeats { get; set; } = true;
 
-    public bool ConsecutiveSeats { get; set; }
+    public bool ConsecutiveSeats { get; set; } = true;
 
-    public bool FinalizedSeats { get; set; }
+    public bool FinalizedSeats { get; set; } = true;
 
     public string Token { get; set; }
 }
