@@ -5,7 +5,6 @@ using System.Drawing.Imaging;
 using System.Text;
 using System.Text.RegularExpressions;
 using Ticket.Application.Helpers;
-using Ticket.Application.Services;
 
 namespace Ticket.Application.Queries.TicketPlus.GetCaptchaAnswer;
 
@@ -14,14 +13,11 @@ namespace Ticket.Application.Queries.TicketPlus.GetCaptchaAnswer;
 /// </summary>
 public class GetCaptchaAnswerHandler : IRequestHandler<GetCaptchaAnswerQuery, GetCaptchaAnswerDto>
 {
-    private readonly GoogleVisionService _googleVisionService;
     private readonly OrcHelpers _orcHelpers;
 
     public GetCaptchaAnswerHandler(
-        GoogleVisionService googleVisionService,
         OrcHelpers orcHelpers)
     {
-        _googleVisionService = googleVisionService;
         _orcHelpers = orcHelpers;
     }
 
