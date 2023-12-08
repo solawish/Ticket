@@ -2,7 +2,7 @@
 
 namespace Ticket.Application.Commands.TicketPlus.InitialUser;
 
-public class InitialUserCommand : IRequest<InitialUserDto>
+public class InitialUserCacheCommand : IRequest<InitialUserCacheDto>
 {
     public string Mobile { get; set; }
 

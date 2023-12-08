@@ -1,7 +1,6 @@
 ﻿using MediatR;
 using Microsoft.Extensions.Options;
 using System.Net.Http.Json;
-using System.Text.Json;
 using Ticket.Application.Options;
 
 namespace Ticket.Application.Commands.TicketPlus.GenerateCaptcha;
@@ -26,23 +25,13 @@ public class GenerateCaptchaCommandHandler : IRequestHandler<GenerateCaptchaComm
     {
         var httpClient = _httpClientFactory.CreateClient(_ticketPlusOptions.Value.Name);
 
-        var httpRequest = new HttpRequestMessage(
-            HttpMethod.Post,
-            $"{_ticketPlusOptions.Value.GenerateCaptchaUrl}")
-        {
-            Content = JsonContent.Create(
-                request,
-                options: new JsonSerializerOptions
-                {
-                    PropertyNameCaseInsensitive = true
-                }),
-            Headers =
-            {
-                { "Authorization", $"Bearer {request.Token}" }
-            }
-        };
+        httpClient.DefaultRequestHeaders.Add("Authorization", $"Bearer {request.Token}");
 
-        var response = await httpClient.SendAsync(httpRequest, cancellationToken);
+        var response = await httpClient.PostAsJsonAsync(
+          _ticketPlusOptions.Value.GenerateCaptchaUrl,
+          request,
+          cancellationToken);
+
         response.EnsureSuccessStatusCode();
 
         return await response.Content.ReadFromJsonAsync<GenerateCaptchaDto>(cancellationToken: cancellationToken);

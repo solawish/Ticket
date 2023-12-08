@@ -116,9 +116,9 @@ public class TicketPlusController : ControllerBase
     /// <returns></returns>
     [HttpPut]
     [Route("User/Cache")]
-    [ProducesResponseType(typeof(InitialUserDto), 200)]
+    [ProducesResponseType(typeof(InitialUserCacheDto), 200)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> Get([FromQuery] InitialUserCommand initialUserCommand)
+    public async Task<IActionResult> Get([FromQuery] InitialUserCacheCommand initialUserCommand)
     {
         var result = await _mediator.Send(initialUserCommand);
         return Ok(result);

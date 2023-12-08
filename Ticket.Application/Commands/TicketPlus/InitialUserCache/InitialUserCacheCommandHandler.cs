@@ -8,12 +8,12 @@ namespace Ticket.Application.Commands.TicketPlus.InitialUser;
 /// <summary>
 /// 初始化使用者
 /// </summary>
-public class InitialUserCommandHandler : IRequestHandler<InitialUserCommand, InitialUserDto>
+public class InitialUserCacheCommandHandler : IRequestHandler<InitialUserCacheCommand, InitialUserCacheDto>
 {
     private readonly IMediator _mediator;
     private readonly IMemoryCache _memoryCache;
 
-    public InitialUserCommandHandler(
+    public InitialUserCacheCommandHandler(
         IMediator mediator,
         IMemoryCache memoryCache
         )
@@ -22,7 +22,7 @@ public class InitialUserCommandHandler : IRequestHandler<InitialUserCommand, Ini
         _memoryCache = memoryCache;
     }
 
-    public async Task<InitialUserDto> Handle(InitialUserCommand request, CancellationToken cancellationToken)
+    public async Task<InitialUserCacheDto> Handle(InitialUserCacheCommand request, CancellationToken cancellationToken)
     {
         var accessTokenDto = await _mediator.Send(new GetAccessTokenQuery()
         {
@@ -32,6 +32,6 @@ public class InitialUserCommandHandler : IRequestHandler<InitialUserCommand, Ini
         }, cancellationToken);
 
         _memoryCache.Set(string.Format(Const.UserCacheKey, request.Mobile), accessTokenDto);
-        return new InitialUserDto();
+        return new InitialUserCacheDto();
     }
 }
