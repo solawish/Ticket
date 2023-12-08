@@ -3,7 +3,7 @@ using Microsoft.Extensions.Options;
 using System.Net.Http.Json;
 using Ticket.Application.Options;
 
-namespace Ticket.Application.Queries.TicketPlus.GetProductInfoQuery;
+namespace Ticket.Application.Queries.TicketPlus.GetS3ProductInfo;
 
 /// <summary>
 /// 取得S3活動資訊

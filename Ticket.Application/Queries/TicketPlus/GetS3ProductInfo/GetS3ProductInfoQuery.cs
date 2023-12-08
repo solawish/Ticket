@@ -1,6 +1,6 @@
 ﻿using MediatR;
 
-namespace Ticket.Application.Queries.TicketPlus.GetProductInfoQuery;
+namespace Ticket.Application.Queries.TicketPlus.GetS3ProductInfo;
 
 public class GetS3ProductInfoQuery : IRequest<GetS3ProductInfoDto>
 {

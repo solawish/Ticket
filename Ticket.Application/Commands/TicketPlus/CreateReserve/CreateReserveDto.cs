@@ -1,4 +1,4 @@
-﻿namespace Ticket.Application.Commands.TicketPlus.CreateReserveCommand;
+﻿namespace Ticket.Application.Commands.TicketPlus.CreateReserve;
 
 public class CreateReserveDto
 {

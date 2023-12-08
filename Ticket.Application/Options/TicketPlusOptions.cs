@@ -11,4 +11,6 @@ public class TicketPlusOptions
     public string GenerateCaptchaUrl { get; set; }
 
     public string LoginUrl { get; set; }
+
+    public string ConfigUrl { get; set; }
 }

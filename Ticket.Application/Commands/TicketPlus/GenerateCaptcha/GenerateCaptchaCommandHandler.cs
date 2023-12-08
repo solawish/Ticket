@@ -4,17 +4,17 @@ using System.Net.Http.Json;
 using System.Text.Json;
 using Ticket.Application.Options;
 
-namespace Ticket.Application.Commands.TicketPlus.CreateReserveCommand;
+namespace Ticket.Application.Commands.TicketPlus.GenerateCaptcha;
 
 /// <summary>
-/// 預約票券
+/// 產生驗證碼圖片
 /// </summary>
-public class CreateReserveCommandHandler : IRequestHandler<CreateReserveCommand, CreateReserveDto>
+public class GenerateCaptchaCommandHandler : IRequestHandler<GenerateCaptchaCommand, GenerateCaptchaDto>
 {
     private readonly IHttpClientFactory _httpClientFactory;
     private readonly IOptions<TicketPlusOptions> _ticketPlusOptions;
 
-    public CreateReserveCommandHandler(
+    public GenerateCaptchaCommandHandler(
         IHttpClientFactory httpClientFactory,
         IOptions<TicketPlusOptions> ticketPlusOptions)
     {
@@ -22,15 +22,13 @@ public class CreateReserveCommandHandler : IRequestHandler<CreateReserveCommand,
         _ticketPlusOptions = ticketPlusOptions;
     }
 
-    public async Task<CreateReserveDto> Handle(
-        CreateReserveCommand request,
-        CancellationToken cancellationToken)
+    public async Task<GenerateCaptchaDto> Handle(GenerateCaptchaCommand request, CancellationToken cancellationToken)
     {
         var httpClient = _httpClientFactory.CreateClient(_ticketPlusOptions.Value.Name);
 
         var httpRequest = new HttpRequestMessage(
             HttpMethod.Post,
-            $"{_ticketPlusOptions.Value.ReserveUrl}")
+            $"{_ticketPlusOptions.Value.GenerateCaptchaUrl}")
         {
             Content = JsonContent.Create(
                 request,
@@ -47,7 +45,6 @@ public class CreateReserveCommandHandler : IRequestHandler<CreateReserveCommand,
         var response = await httpClient.SendAsync(httpRequest, cancellationToken);
         response.EnsureSuccessStatusCode();
 
-        var result = await response.Content.ReadFromJsonAsync<CreateReserveDto>(cancellationToken: cancellationToken);
-        return result;
+        return await response.Content.ReadFromJsonAsync<GenerateCaptchaDto>(cancellationToken: cancellationToken);
     }
 }

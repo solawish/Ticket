@@ -1,11 +1,11 @@
 ﻿using Asp.Versioning;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
-using Ticket.Application.Commands.TicketPlus.CreateReserveCommand;
-using Ticket.Application.Commands.TicketPlus.GenerateCaptchaCommand;
-using Ticket.Application.Queries.TicketPlus.GetAccessTokenQuery;
-using Ticket.Application.Queries.TicketPlus.GetCaptchaAnswerQuery;
-using Ticket.Application.Queries.TicketPlus.GetProductInfoQuery;
+using Ticket.Application.Commands.TicketPlus.CreateReserve;
+using Ticket.Application.Commands.TicketPlus.GenerateCaptcha;
+using Ticket.Application.Queries.TicketPlus.GetAccessToken;
+using Ticket.Application.Queries.TicketPlus.GetCaptchaAnswer;
+using Ticket.Application.Queries.TicketPlus.GetS3ProductInfo;
 
 namespace Ticket.Api.Controllers;
 

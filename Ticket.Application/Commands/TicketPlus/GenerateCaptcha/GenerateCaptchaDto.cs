@@ -1,4 +1,4 @@
-﻿namespace Ticket.Application.Commands.TicketPlus.GenerateCaptchaCommand;
+﻿namespace Ticket.Application.Commands.TicketPlus.GenerateCaptcha;
 
 public class GenerateCaptchaDto
 {

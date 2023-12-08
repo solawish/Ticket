@@ -7,7 +7,7 @@ using System.Text.RegularExpressions;
 using Ticket.Application.Helpers;
 using Ticket.Application.Services;
 
-namespace Ticket.Application.Queries.TicketPlus.GetCaptchaAnswerQuery;
+namespace Ticket.Application.Queries.TicketPlus.GetCaptchaAnswer;
 
 /// <summary>
 /// 解析驗證碼

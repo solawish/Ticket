@@ -1,6 +1,6 @@
 ﻿using MediatR;
 
-namespace Ticket.Application.Queries.TicketPlus.GetAccessTokenQuery;
+namespace Ticket.Application.Queries.TicketPlus.GetAccessToken;
 
 public class GetAccessTokenQuery : IRequest<GetAccessTokenDto>
 {

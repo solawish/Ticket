@@ -1,6 +1,6 @@
 ﻿using MediatR;
 
-namespace Ticket.Application.Queries.TicketPlus.GetCaptchaAnswerQuery;
+namespace Ticket.Application.Queries.TicketPlus.GetCaptchaAnswer;
 
 public class GetCaptchaAnswerQuery : IRequest<GetCaptchaAnswerDto>
 {

@@ -1,6 +1,6 @@
 ﻿using MediatR;
 
-namespace Ticket.Application.Commands.TicketPlus.GenerateCaptchaCommand;
+namespace Ticket.Application.Commands.TicketPlus.GenerateCaptcha;
 
 public class GenerateCaptchaCommand : IRequest<GenerateCaptchaDto>
 {

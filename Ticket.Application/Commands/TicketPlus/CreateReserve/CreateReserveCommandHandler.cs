@@ -4,17 +4,17 @@ using System.Net.Http.Json;
 using System.Text.Json;
 using Ticket.Application.Options;
 
-namespace Ticket.Application.Commands.TicketPlus.GenerateCaptchaCommand;
+namespace Ticket.Application.Commands.TicketPlus.CreateReserve;
 
 /// <summary>
-/// 產生驗證碼圖片
+/// 預約票券
 /// </summary>
-public class GenerateCaptchaCommandHandler : IRequestHandler<GenerateCaptchaCommand, GenerateCaptchaDto>
+public class CreateReserveCommandHandler : IRequestHandler<CreateReserveCommand, CreateReserveDto>
 {
     private readonly IHttpClientFactory _httpClientFactory;
     private readonly IOptions<TicketPlusOptions> _ticketPlusOptions;
 
-    public GenerateCaptchaCommandHandler(
+    public CreateReserveCommandHandler(
         IHttpClientFactory httpClientFactory,
         IOptions<TicketPlusOptions> ticketPlusOptions)
     {
@@ -22,13 +22,15 @@ public class GenerateCaptchaCommandHandler : IRequestHandler<GenerateCaptchaComm
         _ticketPlusOptions = ticketPlusOptions;
     }
 
-    public async Task<GenerateCaptchaDto> Handle(GenerateCaptchaCommand request, CancellationToken cancellationToken)
+    public async Task<CreateReserveDto> Handle(
+        CreateReserveCommand request,
+        CancellationToken cancellationToken)
     {
         var httpClient = _httpClientFactory.CreateClient(_ticketPlusOptions.Value.Name);
 
         var httpRequest = new HttpRequestMessage(
             HttpMethod.Post,
-            $"{_ticketPlusOptions.Value.GenerateCaptchaUrl}")
+            $"{_ticketPlusOptions.Value.ReserveUrl}")
         {
             Content = JsonContent.Create(
                 request,
@@ -45,6 +47,7 @@ public class GenerateCaptchaCommandHandler : IRequestHandler<GenerateCaptchaComm
         var response = await httpClient.SendAsync(httpRequest, cancellationToken);
         response.EnsureSuccessStatusCode();
 
-        return await response.Content.ReadFromJsonAsync<GenerateCaptchaDto>(cancellationToken: cancellationToken);
+        var result = await response.Content.ReadFromJsonAsync<CreateReserveDto>(cancellationToken: cancellationToken);
+        return result;
     }
 }
