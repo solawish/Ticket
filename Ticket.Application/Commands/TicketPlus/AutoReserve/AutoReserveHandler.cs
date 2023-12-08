@@ -1,8 +1,10 @@
 ﻿using MediatR;
+using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
 using System.Text.Json;
 using Ticket.Application.Commands.TicketPlus.CreateReserve;
 using Ticket.Application.Commands.TicketPlus.GenerateCaptcha;
+using Ticket.Application.Common;
 using Ticket.Application.Queries.TicketPlus.GetAccessToken;
 using Ticket.Application.Queries.TicketPlus.GetCaptchaAnswer;
 using Ticket.Application.Queries.TicketPlus.GetProductConfig;
@@ -19,29 +21,40 @@ public class AutoReserveHandler : IRequestHandler<AutoReserveCommand, AutoReserv
 {
     private readonly IMediator _mediator;
     private readonly ILogger<AutoReserveHandler> _logger;
+    private readonly IMemoryCache _memoryCache;
 
     public AutoReserveHandler(
         IMediator mediator,
-        ILogger<AutoReserveHandler> logger
+        ILogger<AutoReserveHandler> logger,
+        IMemoryCache memoryCache
         )
     {
         _mediator = mediator;
         _logger = logger;
+        _memoryCache = memoryCache;
     }
 
     public async Task<AutoReserveDto> Handle(AutoReserveCommand request, CancellationToken cancellationToken)
     {
-        // todo: 有些固定內容要加CACHE
-
+        GetS3ProductInfoDto s3ProductInfoQueryDto;
         // 透過 ActivityId 取得S3活動資訊
-        var s3ProductInfoQueryDto = await _mediator.Send(new GetS3ProductInfoQuery
+        if (_memoryCache.TryGetValue(string.Format(Const.S3ProductInfoCacheKey, request.ActivityId), out GetS3ProductInfoDto cachesS3ProductInfoQueryDto))
+        {
+            s3ProductInfoQueryDto = cachesS3ProductInfoQueryDto;
+        }
+        s3ProductInfoQueryDto = await _mediator.Send(new GetS3ProductInfoQuery
         {
             ActivityId = request.ActivityId
         }, cancellationToken);
         _logger.LogInformation($"GetS3ProductInfoQuery: {JsonSerializer.Serialize(s3ProductInfoQueryDto)}");
 
         // 再從結果中的ProductId去取得票券的資訊
-        var ticketConfigQueryDto = await _mediator.Send(new GetProductConfigQuery
+        GetProductConfigDto ticketConfigQueryDto;
+        if (_memoryCache.TryGetValue(string.Format(Const.ProductConfigCacheKey, request.ActivityId), out GetProductConfigDto cachesTicketConfigQueryDto))
+        {
+            ticketConfigQueryDto = cachesTicketConfigQueryDto;
+        }
+        ticketConfigQueryDto = await _mediator.Send(new GetProductConfigQuery
         {
             ProductId = s3ProductInfoQueryDto.Products.Select(x => x.ProductId)
         }, cancellationToken);

@@ -24,6 +24,8 @@ public static class DependencyInjection
         services.AddSingleton<dddddocr>(new dddddocr(det: false, old: true, show_ad: false));
         services.AddSingleton<OrcHelpers>();
 
+        services.AddMemoryCache();
+
         return services;
     }
 }

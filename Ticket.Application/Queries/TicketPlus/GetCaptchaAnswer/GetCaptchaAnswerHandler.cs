@@ -35,8 +35,6 @@ public class GetCaptchaAnswerHandler : IRequestHandler<GetCaptchaAnswerQuery, Ge
         bitmap.Save("result.jpg", ImageFormat.Png);
         resultStream.Position = 0;
 
-        //var result = await _googleVisionService.GetTextFromImageAsync(resultStream);
-
         // stream to byte array
         var bytes = new byte[resultStream.Length];
         resultStream.Read(bytes, 0, bytes.Length);

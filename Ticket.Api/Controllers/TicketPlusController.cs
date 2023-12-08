@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using Ticket.Application.Commands.TicketPlus.AutoReserve;
 using Ticket.Application.Commands.TicketPlus.CreateReserve;
 using Ticket.Application.Commands.TicketPlus.GenerateCaptcha;
+using Ticket.Application.Commands.TicketPlus.InitialActivityCache;
 using Ticket.Application.Queries.TicketPlus.GetAccessToken;
 using Ticket.Application.Queries.TicketPlus.GetCaptchaAnswer;
 using Ticket.Application.Queries.TicketPlus.GetProductConfig;
@@ -133,6 +134,21 @@ public class TicketPlusController : ControllerBase
     public async Task<IActionResult> Post([FromBody] AutoReserveCommand autoReserveCommand)
     {
         var result = await _mediator.Send(autoReserveCommand);
+        return Ok(result);
+    }
+
+    /// <summary>
+    /// 初始化活動快取
+    /// </summary>
+    /// <param name="initialActivityCacheCommand"></param>
+    /// <returns></returns>
+    [HttpPut]
+    [Route("Activity/Cache")]
+    [ProducesResponseType(typeof(InitialActivityCacheDto), 200)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> Post([FromQuery] InitialActivityCacheCommand initialActivityCacheCommand)
+    {
+        var result = await _mediator.Send(initialActivityCacheCommand);
         return Ok(result);
     }
 }
