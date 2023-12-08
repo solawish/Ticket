@@ -2,6 +2,7 @@
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
 using Ticket.Application.Common;
+using Ticket.Application.Queries.TicketPlus.GetAreaConfig;
 using Ticket.Application.Queries.TicketPlus.GetProductConfig;
 using Ticket.Application.Queries.TicketPlus.GetS3ProductInfo;
 
@@ -44,6 +45,13 @@ public class InitialActivityCacheHandler : IRequestHandler<InitialActivityCacheC
             ProductId = s3ProductInfoQueryDto.Products.Select(x => x.ProductId)
         }, cancellationToken);
         _memoryCache.Set(string.Format(Const.ProductConfigCacheKey, request.ActivityId), ticketConfigQueryDto);
+
+        // 取得票區的資訊
+        var areaConfigQueryDto = await _mediator.Send(new GetAreaConfigQuery
+        {
+            TicketAreaId = s3ProductInfoQueryDto.Products.Select(x => x.TicketAreaId)
+        }, cancellationToken);
+        _memoryCache.Set(string.Format(Const.AreaConfigCacheKey, request.ActivityId), areaConfigQueryDto);
 
         return new InitialActivityCacheDto();
     }

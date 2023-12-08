@@ -6,6 +6,7 @@ using Ticket.Application.Commands.TicketPlus.CreateReserve;
 using Ticket.Application.Commands.TicketPlus.GenerateCaptcha;
 using Ticket.Application.Common;
 using Ticket.Application.Queries.TicketPlus.GetAccessToken;
+using Ticket.Application.Queries.TicketPlus.GetAreaConfig;
 using Ticket.Application.Queries.TicketPlus.GetCaptchaAnswer;
 using Ticket.Application.Queries.TicketPlus.GetProductConfig;
 using Ticket.Application.Queries.TicketPlus.GetS3ProductInfo;
@@ -60,6 +61,18 @@ public class AutoReserveHandler : IRequestHandler<AutoReserveCommand, AutoReserv
         }, cancellationToken);
         _logger.LogInformation($"GetProductConfigQuery: {JsonSerializer.Serialize(ticketConfigQueryDto)}");
 
+        // 取得票區的資訊
+        GetAreaConfigDto areaConfigQueryDto;
+        if (_memoryCache.TryGetValue(string.Format(Const.AreaConfigCacheKey, request.ActivityId), out GetAreaConfigDto cachesAreaConfigQueryDto))
+        {
+            areaConfigQueryDto = cachesAreaConfigQueryDto;
+        }
+        areaConfigQueryDto = await _mediator.Send(new GetAreaConfigQuery
+        {
+            TicketAreaId = s3ProductInfoQueryDto.Products.Where(x => string.IsNullOrEmpty(x.TicketAreaId) is false).Select(x => x.TicketAreaId)
+        }, cancellationToken);
+        _logger.LogInformation($"GetAreaConfigQuery: {JsonSerializer.Serialize(areaConfigQueryDto)}");
+
         // 取得登入的accessToken
         var accessTokenDto = await _mediator.Send(new GetAccessTokenQuery()
         {
@@ -99,6 +112,18 @@ public class AutoReserveHandler : IRequestHandler<AutoReserveCommand, AutoReserv
                 _logger.LogInformation($"GetCaptchaAnswerQuery: {JsonSerializer.Serialize(captchaCode)}");
             }
 
+            // 有沒有想要的票區
+            var productId = ticketConfigQueryDto.Result.Product.First().Id;
+            if (string.IsNullOrEmpty(request.AreaName) is false)
+            {
+                var area = areaConfigQueryDto.Result.TicketArea.FirstOrDefault(x => x.TicketAreaName.Contains(request.AreaName));
+                if (area is not null)
+                {
+                    productId = s3ProductInfoQueryDto.Products.FirstOrDefault(x => x.TicketAreaId.Equals(area.Id)).ProductId;
+                    _logger.LogInformation($"找到想要的票區，AreaName: {area.TicketAreaName}");
+                }
+            }
+
             // 預約票券
             var reserveResultDto = await _mediator.Send(new CreateReserveCommand
             {
@@ -106,8 +131,7 @@ public class AutoReserveHandler : IRequestHandler<AutoReserveCommand, AutoReserv
                 {
                     new ReserveProduct
                     {
-                        // 選擇哪種票要改這邊
-                        ProductId = ticketConfigQueryDto.Result.Product.First().Id,
+                        ProductId = productId,
                         Count = request.Count
                     }
                 },

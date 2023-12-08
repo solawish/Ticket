@@ -27,7 +27,7 @@ public class GetAreaConfigHandler : IRequestHandler<GetAreaConfigQuery, GetAreaC
         var httpClient = _httpClientFactory.CreateClient(_ticketPlusOptions.Value.Name);
 
         var response = await httpClient.GetAsync(
-            $"{_ticketPlusOptions.Value.ConfigUrl}?ticketAreaId={string.Join(',', request.TicketAreaId)}",
+            $"{_ticketPlusOptions.Value.ConfigUrl}?ticketAreaId={string.Join(',', request.TicketAreaId.Distinct())}",
             cancellationToken);
         response.EnsureSuccessStatusCode();
 
