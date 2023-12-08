@@ -61,15 +61,15 @@ public class TicketPlusController : ControllerBase
     /// <summary>
     /// 產生驗證碼圖片
     /// </summary>
-    /// <param name="generateRecaptchCommand"></param>
+    /// <param name="generateCaptchaCommand"></param>
     /// <returns></returns>
     [HttpPost]
-    [Route("Recaptch")]
-    [ProducesResponseType(typeof(GenerateRecaptchDto), 200)]
+    [Route("Captcha")]
+    [ProducesResponseType(typeof(GenerateCaptchaDto), 200)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> Post([FromBody] GenerateRecaptchCommand generateRecaptchCommand)
+    public async Task<IActionResult> Post([FromBody] GenerateCaptchaCommand generateCaptchaCommand)
     {
-        var result = await _mediator.Send(generateRecaptchCommand);
+        var result = await _mediator.Send(generateCaptchaCommand);
         return Ok(result);
     }
 

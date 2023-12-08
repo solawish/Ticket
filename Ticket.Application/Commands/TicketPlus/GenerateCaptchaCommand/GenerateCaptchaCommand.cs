@@ -2,7 +2,7 @@
 
 namespace Ticket.Application.Commands.TicketPlus.GenerateRecaptchCommand;
 
-public class GenerateRecaptchCommand : IRequest<GenerateRecaptchDto>
+public class GenerateCaptchaCommand : IRequest<GenerateCaptchaDto>
 {
     public string SessionId { get; set; }
 

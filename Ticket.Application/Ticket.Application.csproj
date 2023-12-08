@@ -8,6 +8,7 @@
 
   <ItemGroup>
     <Folder Include="Queries\Common\" />
+    <Folder Include="Queries\TicketPlus\GetCaptchaAnswer\" />
   </ItemGroup>
 
   <ItemGroup>

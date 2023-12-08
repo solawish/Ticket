@@ -1,6 +1,6 @@
 ﻿namespace Ticket.Application.Commands.TicketPlus.GenerateRecaptchCommand;
 
-public class GenerateRecaptchDto
+public class GenerateCaptchaDto
 {
     //    {
     //    "errCode": "00",

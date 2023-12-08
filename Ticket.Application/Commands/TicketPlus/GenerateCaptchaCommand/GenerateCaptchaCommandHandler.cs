@@ -9,12 +9,12 @@ namespace Ticket.Application.Commands.TicketPlus.GenerateRecaptchCommand;
 /// <summary>
 /// 產生驗證碼圖片
 /// </summary>
-public class GenerateRecaptchCommandHandler : IRequestHandler<GenerateRecaptchCommand, GenerateRecaptchDto>
+public class GenerateCaptchaCommandHandler : IRequestHandler<GenerateCaptchaCommand, GenerateCaptchaDto>
 {
     private readonly IHttpClientFactory _httpClientFactory;
     private readonly IOptions<TicketPlusOptions> _ticketPlusOptions;
 
-    public GenerateRecaptchCommandHandler(
+    public GenerateCaptchaCommandHandler(
         IHttpClientFactory httpClientFactory,
         IOptions<TicketPlusOptions> ticketPlusOptions)
     {
@@ -22,13 +22,13 @@ public class GenerateRecaptchCommandHandler : IRequestHandler<GenerateRecaptchCo
         _ticketPlusOptions = ticketPlusOptions;
     }
 
-    public async Task<GenerateRecaptchDto> Handle(GenerateRecaptchCommand request, CancellationToken cancellationToken)
+    public async Task<GenerateCaptchaDto> Handle(GenerateCaptchaCommand request, CancellationToken cancellationToken)
     {
         var httpClient = _httpClientFactory.CreateClient(_ticketPlusOptions.Value.Name);
 
         var httpRequest = new HttpRequestMessage(
             HttpMethod.Post,
-            $"{_ticketPlusOptions.Value.GenerateRecaptchaUrl}")
+            $"{_ticketPlusOptions.Value.GenerateCaptchaUrl}")
         {
             Content = JsonContent.Create(
                 request,
@@ -45,6 +45,6 @@ public class GenerateRecaptchCommandHandler : IRequestHandler<GenerateRecaptchCo
         var response = await httpClient.SendAsync(httpRequest, cancellationToken);
         response.EnsureSuccessStatusCode();
 
-        return await response.Content.ReadFromJsonAsync<GenerateRecaptchDto>(cancellationToken: cancellationToken);
+        return await response.Content.ReadFromJsonAsync<GenerateCaptchaDto>(cancellationToken: cancellationToken);
     }
 }
