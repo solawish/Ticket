@@ -1,6 +1,8 @@
-﻿using Microsoft.Extensions.Configuration;
+﻿using ddddocrsharp;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using System.Reflection;
+using Ticket.Application.Helpers;
 using Ticket.Application.Options;
 
 namespace Ticket.Application;
@@ -18,6 +20,9 @@ public static class DependencyInjection
         services.Configure<TicketPlusOptions>(
             configuration.GetSection(nameof(TicketPlusOptions))
         );
+
+        services.AddSingleton<dddddocr>(new dddddocr(det: false, old: true, show_ad: false));
+        services.AddSingleton<OrcHelpers>();
 
         return services;
     }

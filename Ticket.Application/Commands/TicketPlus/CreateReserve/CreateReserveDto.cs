@@ -1,0 +1,38 @@
+﻿namespace Ticket.Application.Commands.TicketPlus.CreateReserve;
+
+public class CreateReserveDto
+{
+    //    {
+    //    "errCode": "00",
+    //    "errMsg": "",
+    //    "errDetail": "",
+    //    "products": [
+    //        {
+    //            "idx": 6319745,
+    //            "userId": "fetix.1698336036062729",
+    //            "userType": "oone",
+    //            "productId": "p000002938",
+    //            "info": {},
+    //            "count": 1,
+    //            "status": "RESERVED",
+    //            "orderId": 6308540,
+    //            "hash": "4dc400b4da1345907db1f8da2c18d4c5",
+    //            "expiryTimestamp": "2023-12-08T14:53:05+08:00",
+    //            "createdAt": "2023-12-08T14:43:05+08:00"
+    //        }
+    //    ],
+    //    "orderId": 6308540,
+    //    "total": 750,
+    //    "hash": "4dc400b4da1345907db1f8da2c18d4c5",
+    //    "finalizedSeats": true
+    //}
+    public string ErrCode { get; set; }
+
+    public string ErrMsg { get; set; }
+    public string ErrDetail { get; set; }
+    public List<ReserveProductResult> Products { get; set; }
+    public int OrderId { get; set; }
+    public int Total { get; set; }
+    public string Hash { get; set; }
+    public bool FinalizedSeats { get; set; }
+}
