@@ -8,16 +8,17 @@
 
   <ItemGroup>
     <Folder Include="Queries\Common\" />
-    <Folder Include="Queries\TicketPlus\GetCaptchaAnswer\" />
   </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="Google.Cloud.Vision.V1" Version="3.3.0" />
     <PackageReference Include="Microsoft.Extensions.Http" Version="8.0.0" />
     <PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="8.0.0" />
+    <PackageReference Include="Svg" Version="3.4.6" />
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\ddddocrsharp\ddddocrsharp.csproj" />
     <ProjectReference Include="..\Ticket.Domain\Ticket.Domain.csproj" />
   </ItemGroup>
 

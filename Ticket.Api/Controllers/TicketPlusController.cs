@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using Ticket.Application.Commands.TicketPlus.CreateReserveCommand;
 using Ticket.Application.Commands.TicketPlus.GenerateRecaptchCommand;
 using Ticket.Application.Queries.TicketPlus.GetAccessToken;
+using Ticket.Application.Queries.TicketPlus.GetCaptchaAnswer;
 using Ticket.Application.Queries.TicketPlus.GetProductInfoQuery;
 
 namespace Ticket.Api.Controllers;
@@ -85,6 +86,21 @@ public class TicketPlusController : ControllerBase
     public async Task<IActionResult> Get([FromQuery] GetAccessTokenQuery getAccessTokenQuery)
     {
         var result = await _mediator.Send(getAccessTokenQuery);
+        return Ok(result);
+    }
+
+    /// <summary>
+    /// 解析驗證碼
+    /// </summary>
+    /// <param name="getCaptchaAnswerQuery"></param>
+    /// <returns></returns>
+    [HttpPost]
+    [Route("Captcha/Parsing")]
+    [ProducesResponseType(typeof(GetCaptchaAnswerDto), 200)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> Get([FromBody] GetCaptchaAnswerQuery getCaptchaAnswerQuery)
+    {
+        var result = await _mediator.Send(getCaptchaAnswerQuery);
         return Ok(result);
     }
 }

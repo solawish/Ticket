@@ -1,7 +1,9 @@
-﻿using Google.Cloud.Vision.V1;
+﻿using ddddocrsharp;
+using Google.Cloud.Vision.V1;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using System.Reflection;
+using Ticket.Application.Helpers;
 using Ticket.Application.Options;
 using Ticket.Application.Services;
 
@@ -27,6 +29,9 @@ public static class DependencyInjection
 
         services.AddSingleton<ImageAnnotatorClient>(ImageAnnotatorClient.Create());
         services.AddScoped<GoogleVisionService>();
+
+        services.AddSingleton<dddddocr>(new dddddocr(det: false, old: true, show_ad: false));
+        services.AddSingleton<OrcHelpers>();
 
         return services;
     }
