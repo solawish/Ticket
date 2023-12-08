@@ -2,7 +2,7 @@
 
 namespace Ticket.Application.Queries.TicketPlus.GetProductInfoQuery;
 
-public class GetProductInfoDto
+public class GetS3ProductInfoDto
 {
     public IEnumerable<Product> Products { get; set; }
 }
