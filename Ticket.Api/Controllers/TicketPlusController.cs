@@ -6,6 +6,7 @@ using Ticket.Application.Commands.TicketPlus.CreateReserve;
 using Ticket.Application.Commands.TicketPlus.GenerateCaptcha;
 using Ticket.Application.Commands.TicketPlus.InitialActivityCache;
 using Ticket.Application.Queries.TicketPlus.GetAccessToken;
+using Ticket.Application.Queries.TicketPlus.GetAreaConfig;
 using Ticket.Application.Queries.TicketPlus.GetCaptchaAnswer;
 using Ticket.Application.Queries.TicketPlus.GetProductConfig;
 using Ticket.Application.Queries.TicketPlus.GetS3ProductInfo;
@@ -149,6 +150,21 @@ public class TicketPlusController : ControllerBase
     public async Task<IActionResult> Post([FromQuery] InitialActivityCacheCommand initialActivityCacheCommand)
     {
         var result = await _mediator.Send(initialActivityCacheCommand);
+        return Ok(result);
+    }
+
+    /// <summary>
+    /// 取得票區的資訊
+    /// </summary>
+    /// <param name="getAreaConfigQuery"></param>
+    /// <returns></returns>
+    [HttpGet]
+    [Route("AreaConfig")]
+    [ProducesResponseType(typeof(GetAreaConfigDto), 200)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> Get([FromQuery] GetAreaConfigQuery getAreaConfigQuery)
+    {
+        var result = await _mediator.Send(getAreaConfigQuery);
         return Ok(result);
     }
 }
