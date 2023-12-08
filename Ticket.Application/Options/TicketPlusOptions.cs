@@ -9,4 +9,6 @@ public class TicketPlusOptions
     public string ReserveUrl { get; set; }
 
     public string GenerateRecaptchaUrl { get; set; }
+
+    public string LoginUrl { get; set; }
 }

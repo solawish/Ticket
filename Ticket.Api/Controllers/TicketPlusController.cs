@@ -3,10 +3,14 @@ using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Ticket.Application.Commands.TicketPlus.CreateReserveCommand;
 using Ticket.Application.Commands.TicketPlus.GenerateRecaptchCommand;
+using Ticket.Application.Queries.TicketPlus.GetAccessToken;
 using Ticket.Application.Queries.TicketPlus.GetProductInfoQuery;
 
 namespace Ticket.Api.Controllers;
 
+/// <summary>
+/// TicketPlus Controller
+/// </summary>
 [ApiVersion("1.0")]
 [Route("api/v{version:apiVersion}/[controller]")]
 [ApiController]
@@ -66,6 +70,21 @@ public class TicketPlusController : ControllerBase
     public async Task<IActionResult> Post([FromBody] GenerateRecaptchCommand generateRecaptchCommand)
     {
         var result = await _mediator.Send(generateRecaptchCommand);
+        return Ok(result);
+    }
+
+    /// <summary>
+    /// 登入(取得AccessToken)
+    /// </summary>
+    /// <param name="getAccessTokenQuery"></param>
+    /// <returns></returns>
+    [HttpGet]
+    [Route("AccessToken")]
+    [ProducesResponseType(typeof(GetAccessTokenDto), 200)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> Get([FromQuery] GetAccessTokenQuery getAccessTokenQuery)
+    {
+        var result = await _mediator.Send(getAccessTokenQuery);
         return Ok(result);
     }
 }

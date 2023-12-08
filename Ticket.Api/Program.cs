@@ -1,3 +1,5 @@
+﻿using Microsoft.AspNetCore.Rewrite;
+using System.Net;
 using Ticket.Api.Infrastructure.ApiVersion;
 using Ticket.Api.Infrastructure.SwaggerConfigs;
 using Ticket.Application;
@@ -17,7 +19,7 @@ builder.Services.AddApplicationServices(builder.Configuration);
 // Api Version
 builder.Services.AddApiVersion();
 
-// url �p�g���
+// url 小寫顯示
 builder.Services.AddRouting(options => options.LowercaseUrls = true);
 
 // Swagger Register
@@ -37,5 +39,9 @@ app.UseHttpsRedirection();
 app.UseAuthorization();
 
 app.MapControllers();
+
+// 首頁轉址到 swagger
+var option = new RewriteOptions().AddRedirect("^$", "swagger", (int)HttpStatusCode.Redirect);
+app.UseRewriter(option);
 
 app.Run();
