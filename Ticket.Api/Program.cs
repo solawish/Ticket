@@ -3,6 +3,7 @@ using System.Net;
 using Ticket.Api.Infrastructure.ApiVersion;
 using Ticket.Api.Infrastructure.SwaggerConfigs;
 using Ticket.Application;
+using Ticket.Infrastructure;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -15,6 +16,7 @@ builder.Services.AddSwaggerGen();
 
 builder.Services.AddHttpClient();
 builder.Services.AddApplicationServices(builder.Configuration);
+builder.Services.AddInfrastructure(builder.Configuration);
 
 // Api Version
 builder.Services.AddApiVersion();

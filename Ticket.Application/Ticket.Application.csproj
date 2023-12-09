@@ -21,6 +21,7 @@
   <ItemGroup>
     <ProjectReference Include="..\ddddocrsharp\ddddocrsharp.csproj" />
     <ProjectReference Include="..\Ticket.Domain\Ticket.Domain.csproj" />
+    <ProjectReference Include="..\Ticket.Infrastructure\Ticket.Infrastructure.csproj" />
   </ItemGroup>
 
 </Project>
