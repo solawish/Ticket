@@ -173,14 +173,15 @@ public class TicketPlusController : ControllerBase
     /// 自動預約
     /// </summary>
     /// <param name="autoReserveCommand"></param>
+    /// <param name="cancellationToken"></param>
     /// <returns></returns>
     [HttpPost]
     [Route("AutoReserve")]
     [ProducesResponseType(typeof(AutoReserveDto), 200)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> Post([FromBody] AutoReserveCommand autoReserveCommand)
+    public async Task<IActionResult> Post([FromBody] AutoReserveCommand autoReserveCommand, CancellationToken cancellationToken)
     {
-        var result = await _mediator.Send(autoReserveCommand);
+        var result = await _mediator.Send(autoReserveCommand, cancellationToken);
         return Ok(result);
     }
 }

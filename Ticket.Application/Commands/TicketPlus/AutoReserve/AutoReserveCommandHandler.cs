@@ -93,6 +93,13 @@ public class AutoReserveCommandHandler : IRequestHandler<AutoReserveCommand, Aut
         GetCaptchaAnswerDto captchaCode = null;
         while (true)
         {
+            // 如果cancletoken 已過期 就離開while
+            if (cancellationToken.IsCancellationRequested)
+            {
+                _logger.LogInformation($"cancletoken 已過期, 使用者取消request");
+                return new AutoReserveDto { CreateReserveDto = new CreateReserveDto { } };
+            }
+
             if (isRegenerateCaptcha)
             {
                 _logger.LogInformation($"需要重新產生驗證碼");
@@ -145,6 +152,18 @@ public class AutoReserveCommandHandler : IRequestHandler<AutoReserveCommand, Aut
             }, cancellationToken);
             _logger.LogInformation($"CreateReserveCommand: {JsonSerializer.Serialize(reserveResultDto)}");
 
+            // 如果是賣完了就重來
+            if (reserveResultDto.ErrCode.Equals(((int)ErrorCodeEnum.TicketAreaLimitExceeded).ToString()))
+            {
+                _logger.LogInformation($"這區票賣賣完了");
+                isRegenerateCaptcha = false;
+                isPending = false;
+
+                // 很急就 不要delay
+                await Task.Delay(100, cancellationToken);
+                continue;
+            }
+
             // 如果結果是驗證碼錯誤就要重產驗證碼
             if (reserveResultDto.ErrCode.Equals(((int)ErrorCodeEnum.CaptchaFailed).ToString()))
             {
@@ -160,7 +179,7 @@ public class AutoReserveCommandHandler : IRequestHandler<AutoReserveCommand, Aut
                 _logger.LogInformation($"等待結果中");
                 isRegenerateCaptcha = false;
                 isPending = true;
-                await Task.Delay(1000, cancellationToken);
+                await Task.Delay(250, cancellationToken);
                 continue;
             }
 
@@ -179,8 +198,10 @@ public class AutoReserveCommandHandler : IRequestHandler<AutoReserveCommand, Aut
             }
 
             // 其他不知名的狀況(沒訂到之類的) 就繼續跑 ㄏㄏ
+            isRegenerateCaptcha = false;
+            isPending = false;
             _logger.LogInformation($"重跑");
-            await Task.Delay(500, cancellationToken);
+            await Task.Delay(250, cancellationToken);
         }
     }
 }
