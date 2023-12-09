@@ -4,7 +4,10 @@ using Microsoft.AspNetCore.Mvc;
 using Ticket.Application.Commands.TicketPlus.AutoReserve;
 using Ticket.Application.Commands.TicketPlus.CreateReserve;
 using Ticket.Application.Commands.TicketPlus.GenerateCaptcha;
+using Ticket.Application.Commands.TicketPlus.InitialActivityCache;
+using Ticket.Application.Commands.TicketPlus.InitialUser;
 using Ticket.Application.Queries.TicketPlus.GetAccessToken;
+using Ticket.Application.Queries.TicketPlus.GetAreaConfig;
 using Ticket.Application.Queries.TicketPlus.GetCaptchaAnswer;
 using Ticket.Application.Queries.TicketPlus.GetProductConfig;
 using Ticket.Application.Queries.TicketPlus.GetS3ProductInfo;
@@ -47,32 +50,32 @@ public class TicketPlusController : ControllerBase
     }
 
     /// <summary>
-    /// 預約票券
+    /// 取得票券的資訊
     /// </summary>
-    /// <param name="createReserveCommand"></param>
+    /// <param name="getProductConfigQuery"></param>
     /// <returns></returns>
-    [HttpPost]
-    [Route("Reserve")]
-    [ProducesResponseType(typeof(CreateReserveDto), 200)]
+    [HttpGet]
+    [Route("ProductConfig")]
+    [ProducesResponseType(typeof(GetProductConfigDto), 200)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> Post([FromBody] CreateReserveCommand createReserveCommand)
+    public async Task<IActionResult> Get([FromQuery] GetProductConfigQuery getProductConfigQuery)
     {
-        var result = await _mediator.Send(createReserveCommand);
+        var result = await _mediator.Send(getProductConfigQuery);
         return Ok(result);
     }
 
     /// <summary>
-    /// 產生驗證碼圖片
+    /// 取得票區的資訊
     /// </summary>
-    /// <param name="generateCaptchaCommand"></param>
+    /// <param name="getAreaConfigQuery"></param>
     /// <returns></returns>
-    [HttpPost]
-    [Route("Captcha")]
-    [ProducesResponseType(typeof(GenerateCaptchaDto), 200)]
+    [HttpGet]
+    [Route("AreaConfig")]
+    [ProducesResponseType(typeof(GetAreaConfigDto), 200)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> Post([FromBody] GenerateCaptchaCommand generateCaptchaCommand)
+    public async Task<IActionResult> Get([FromQuery] GetAreaConfigQuery getAreaConfigQuery)
     {
-        var result = await _mediator.Send(generateCaptchaCommand);
+        var result = await _mediator.Send(getAreaConfigQuery);
         return Ok(result);
     }
 
@@ -92,6 +95,51 @@ public class TicketPlusController : ControllerBase
     }
 
     /// <summary>
+    /// 初始化活動快取
+    /// </summary>
+    /// <param name="initialActivityCacheCommand"></param>
+    /// <returns></returns>
+    [HttpPut]
+    [Route("Activity/Cache")]
+    [ProducesResponseType(typeof(InitialActivityCacheDto), 200)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> Post([FromQuery] InitialActivityCacheCommand initialActivityCacheCommand)
+    {
+        var result = await _mediator.Send(initialActivityCacheCommand);
+        return Ok(result);
+    }
+
+    /// <summary>
+    /// 初始化使用者
+    /// </summary>
+    /// <param name="initialUserCommand"></param>
+    /// <returns></returns>
+    [HttpPut]
+    [Route("User/Cache")]
+    [ProducesResponseType(typeof(InitialUserCacheDto), 200)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> Get([FromQuery] InitialUserCacheCommand initialUserCommand)
+    {
+        var result = await _mediator.Send(initialUserCommand);
+        return Ok(result);
+    }
+
+    /// <summary>
+    /// 產生驗證碼圖片
+    /// </summary>
+    /// <param name="generateCaptchaCommand"></param>
+    /// <returns></returns>
+    [HttpPost]
+    [Route("Captcha")]
+    [ProducesResponseType(typeof(GenerateCaptchaDto), 200)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> Post([FromBody] GenerateCaptchaCommand generateCaptchaCommand)
+    {
+        var result = await _mediator.Send(generateCaptchaCommand);
+        return Ok(result);
+    }
+
+    /// <summary>
     /// 解析驗證碼
     /// </summary>
     /// <param name="getCaptchaAnswerQuery"></param>
@@ -107,17 +155,17 @@ public class TicketPlusController : ControllerBase
     }
 
     /// <summary>
-    /// 取得票券的資訊
+    /// 預約票券
     /// </summary>
-    /// <param name="getProductConfigQuery"></param>
+    /// <param name="createReserveCommand"></param>
     /// <returns></returns>
-    [HttpGet]
-    [Route("ProductConfig")]
-    [ProducesResponseType(typeof(GetProductConfigDto), 200)]
+    [HttpPost]
+    [Route("Reserve")]
+    [ProducesResponseType(typeof(CreateReserveDto), 200)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> Get([FromQuery] GetProductConfigQuery getProductConfigQuery)
+    public async Task<IActionResult> Post([FromBody] CreateReserveCommand createReserveCommand)
     {
-        var result = await _mediator.Send(getProductConfigQuery);
+        var result = await _mediator.Send(createReserveCommand);
         return Ok(result);
     }
 
@@ -125,14 +173,15 @@ public class TicketPlusController : ControllerBase
     /// 自動預約
     /// </summary>
     /// <param name="autoReserveCommand"></param>
+    /// <param name="cancellationToken"></param>
     /// <returns></returns>
     [HttpPost]
     [Route("AutoReserve")]
     [ProducesResponseType(typeof(AutoReserveDto), 200)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> Post([FromBody] AutoReserveCommand autoReserveCommand)
+    public async Task<IActionResult> Post([FromBody] AutoReserveCommand autoReserveCommand, CancellationToken cancellationToken)
     {
-        var result = await _mediator.Send(autoReserveCommand);
+        var result = await _mediator.Send(autoReserveCommand, cancellationToken);
         return Ok(result);
     }
 }

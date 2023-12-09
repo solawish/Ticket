@@ -28,4 +28,9 @@ public class AutoReserveCommand : IRequest<AutoReserveDto>
     /// 購買數量
     /// </summary>
     public int Count { get; set; }
+
+    /// <summary>
+    /// 想要的票區關鍵字
+    /// </summary>
+    public string AreaName { get; set; }
 }

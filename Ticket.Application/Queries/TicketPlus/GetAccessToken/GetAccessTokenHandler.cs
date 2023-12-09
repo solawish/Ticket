@@ -1,6 +1,8 @@
 ﻿using MediatR;
 using Microsoft.Extensions.Options;
 using System.Net.Http.Json;
+using System.Security.Cryptography;
+using System.Text;
 using Ticket.Application.Options;
 
 namespace Ticket.Application.Queries.TicketPlus.GetAccessToken;
@@ -25,6 +27,8 @@ public class GetAccessTokenHandler : IRequestHandler<GetAccessTokenQuery, GetAcc
     public async Task<GetAccessTokenDto> Handle(GetAccessTokenQuery request, CancellationToken cancellationToken)
     {
         var httpClient = _httpClientFactory.CreateClient(_ticketPlusOptions.Value.Name);
+
+        request.Password = Convert.ToHexString(MD5.HashData(Encoding.UTF8.GetBytes(request.Password))).ToLower();
 
         var response = await httpClient.PostAsJsonAsync(
             _ticketPlusOptions.Value.LoginUrl,

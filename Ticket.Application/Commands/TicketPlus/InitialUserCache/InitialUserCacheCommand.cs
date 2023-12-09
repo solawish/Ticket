@@ -1,8 +1,8 @@
 ﻿using MediatR;
 
-namespace Ticket.Application.Queries.TicketPlus.GetAccessToken;
+namespace Ticket.Application.Commands.TicketPlus.InitialUser;
 
-public class GetAccessTokenQuery : IRequest<GetAccessTokenDto>
+public class InitialUserCacheCommand : IRequest<InitialUserCacheDto>
 {
     public string Mobile { get; set; }
 
