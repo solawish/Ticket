@@ -31,7 +31,7 @@ public class InitialUserCacheCommandHandler : IRequestHandler<InitialUserCacheCo
             Password = request.Password
         }, cancellationToken);
 
-        _memoryCache.Set(string.Format(Const.UserCacheKey, request.Mobile), accessTokenDto);
+        _memoryCache.Set(string.Format(Const.UserCacheKey, request.Mobile), accessTokenDto, TimeSpan.FromHours(1));
         return new InitialUserCacheDto();
     }
 }
