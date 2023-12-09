@@ -23,6 +23,7 @@ public class AutoReserveCommandHandler : IRequestHandler<AutoReserveCommand, Aut
     private readonly IMediator _mediator;
     private readonly ILogger<AutoReserveCommandHandler> _logger;
     private readonly IMemoryCache _memoryCache;
+    private readonly int delayTime = 250;
 
     public AutoReserveCommandHandler(
         IMediator mediator,
@@ -83,11 +84,13 @@ public class AutoReserveCommandHandler : IRequestHandler<AutoReserveCommand, Aut
             }, cancellationToken);
         _logger.LogInformation($"GetAccessTokenQuery: {JsonSerializer.Serialize(accessTokenDto)}");
 
+        // 有沒有想要的票區
+        var expectProductId = string.IsNullOrEmpty(request.AreaName) is false
+            ? GetAreaProductId(areaConfigQueryDto, s3ProductInfoQueryDto, request.AreaName)
+            : ticketConfigQueryDto.Result.Product.First().Id;
+
         // 是否需要重新產生驗證碼
         var isRegenerateCaptcha = true;
-
-        // 是否正在等待結果
-        var isPending = false;
 
         GenerateCaptchaDto captchaDto = null;
         GetCaptchaAnswerDto captchaCode = null;
@@ -120,18 +123,6 @@ public class AutoReserveCommandHandler : IRequestHandler<AutoReserveCommand, Aut
                 _logger.LogInformation($"GetCaptchaAnswerQuery: {JsonSerializer.Serialize(captchaCode)}");
             }
 
-            // 有沒有想要的票區
-            var productId = ticketConfigQueryDto.Result.Product.First().Id;
-            if (string.IsNullOrEmpty(request.AreaName) is false)
-            {
-                var area = areaConfigQueryDto.Result.TicketArea.FirstOrDefault(x => x.TicketAreaName.Contains(request.AreaName));
-                if (area is not null)
-                {
-                    productId = s3ProductInfoQueryDto.Products.FirstOrDefault(x => x.TicketAreaId.Equals(area.Id)).ProductId;
-                    _logger.LogInformation($"找到想要的票區，AreaName: {area.TicketAreaName}");
-                }
-            }
-
             // 預約票券
             var reserveResultDto = await _mediator.Send(new CreateReserveCommand
             {
@@ -139,7 +130,7 @@ public class AutoReserveCommandHandler : IRequestHandler<AutoReserveCommand, Aut
                 {
                     new ReserveProduct
                     {
-                        ProductId = productId,
+                        ProductId = expectProductId,
                         Count = request.Count
                     }
                 },
@@ -157,10 +148,20 @@ public class AutoReserveCommandHandler : IRequestHandler<AutoReserveCommand, Aut
             {
                 _logger.LogInformation($"這區票賣賣完了");
                 isRegenerateCaptcha = false;
-                isPending = false;
 
                 // 很急就 不要delay
-                await Task.Delay(100, cancellationToken);
+                await Task.Delay(delayTime, cancellationToken);
+                continue;
+            }
+
+            // 如果是銷售一空就重來
+            if (reserveResultDto.ErrCode.Equals(((int)ErrorCodeEnum.ProductSoldOut).ToString()))
+            {
+                _logger.LogInformation($"這票券賣完了");
+                isRegenerateCaptcha = false;
+
+                // 很急就 不要delay
+                await Task.Delay(delayTime, cancellationToken);
                 continue;
             }
 
@@ -169,7 +170,15 @@ public class AutoReserveCommandHandler : IRequestHandler<AutoReserveCommand, Aut
             {
                 _logger.LogInformation($"驗證碼錯誤，重新產生驗證碼");
                 isRegenerateCaptcha = true;
-                isPending = false;
+                continue;
+            }
+
+            // 如果是驗證碼找不到就要重產驗證碼 好像是短時間request太高就會發生這個情境
+            if (reserveResultDto.ErrCode.Equals(((int)ErrorCodeEnum.CaptchaNotFound).ToString()))
+            {
+                _logger.LogInformation($"驗證碼找不到，重新產生驗證碼");
+                isRegenerateCaptcha = true;
+                await Task.Delay(delayTime, cancellationToken);
                 continue;
             }
 
@@ -178,8 +187,7 @@ public class AutoReserveCommandHandler : IRequestHandler<AutoReserveCommand, Aut
             {
                 _logger.LogInformation($"等待結果中");
                 isRegenerateCaptcha = false;
-                isPending = true;
-                await Task.Delay(250, cancellationToken);
+                await Task.Delay(delayTime, cancellationToken);
                 continue;
             }
 
@@ -199,9 +207,23 @@ public class AutoReserveCommandHandler : IRequestHandler<AutoReserveCommand, Aut
 
             // 其他不知名的狀況(沒訂到之類的) 就繼續跑 ㄏㄏ
             isRegenerateCaptcha = false;
-            isPending = false;
             _logger.LogInformation($"重跑");
-            await Task.Delay(250, cancellationToken);
+            await Task.Delay(delayTime, cancellationToken);
         }
+    }
+
+    private string GetAreaProductId(GetAreaConfigDto areaConfigQueryDto, GetS3ProductInfoDto s3ProductInfoQueryDto, string areaName)
+    {
+        var area = areaConfigQueryDto.Result.TicketArea.FirstOrDefault(x => x.TicketAreaName.Contains(areaName));
+        if (area is null)
+        {
+            var defaultProduct = s3ProductInfoQueryDto.Products.FirstOrDefault();
+            var defaultArea = areaConfigQueryDto.Result.TicketArea.FirstOrDefault(x => x.Id.Equals(defaultProduct.TicketAreaId));
+            _logger.LogInformation($"找不到想要的票區，使用第一個票區， AreaName: {defaultArea.TicketAreaName}");
+            return defaultProduct.TicketAreaId;
+        }
+        var expectProductId = s3ProductInfoQueryDto.Products.FirstOrDefault(x => x.TicketAreaId.Equals(area.Id)).ProductId;
+        _logger.LogInformation($"找到想要的票區，AreaName: {area.TicketAreaName}");
+        return expectProductId;
     }
 }
