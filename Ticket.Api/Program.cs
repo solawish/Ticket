@@ -1,5 +1,6 @@
 ﻿using Asp.Versioning.ApiExplorer;
 using Microsoft.AspNetCore.Rewrite;
+using Serilog;
 using System.Net;
 using Ticket.Api.Infrastructure.ApiVersion;
 using Ticket.Api.Infrastructure.SwaggerConfigs;
@@ -7,6 +8,14 @@ using Ticket.Application;
 using Ticket.Infrastructure;
 
 var builder = WebApplication.CreateBuilder(args);
+
+var logger = new LoggerConfiguration()
+    .ReadFrom.Configuration(builder.Configuration)
+    .Enrich.FromLogContext()
+    .CreateLogger();
+
+builder.Logging.ClearProviders();
+builder.Logging.AddSerilog(logger);
 
 // Add services to the container.
 
