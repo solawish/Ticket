@@ -5,32 +5,30 @@ using RichardSzalay.MockHttp;
 using Shouldly;
 using System.Diagnostics.CodeAnalysis;
 using System.Text.Json;
-using Ticket.Application.Queries.TicketPlus.GetAccessToken;
+using Ticket.Application.Queries.TicketPlus.GetS3ProductInfo;
 using Ticket.Application.UnitTests.AutoFixtureSettings;
 using Xunit;
 
 namespace Ticket.Application.UnitTests.Queries.TicketPlus;
 
 [ExcludeFromCodeCoverage]
-public class GetAccessTokenHandlerTests
+public class GetS3ProductInfoQueryHandlerTests
 {
     [Theory]
     [AutoTestingData]
-    public async Task Handle_GetAccessTokenHandler_GiveValidRequest_ShouldReturnAccessToken(
+    public async Task Handler_GetS3ProductInfoQueryHandler_GiveValidRequest_ShouldReturnS3ProductInfo(
         IFixture fixture,
         [Frozen] Mock<IHttpClientFactory> httpClientFactory,
-        GetAccessTokenHandler sut
-        )
+        GetS3ProductInfoQueryHandler sut)
     {
         // Arrange
-        var request = fixture.Create<GetAccessTokenQuery>();
+        var request = fixture.Create<GetS3ProductInfoQuery>();
         var response = fixture
-            .Build<GetAccessTokenDto>()
-            .With(x => x.ErrCode, "00")
+            .Build<GetS3ProductInfoDto>()
             .Create();
 
         var mockHttp = new MockHttpMessageHandler();
-        mockHttp.When("https://apis.ticketplus.com.tw/user/api/v1/login")
+        mockHttp.When("https://config.ticketplus.com.tw/config/api/v1/getS3")
             .Respond("application/json", JsonSerializer.Serialize(response)); // Respond with JSON
 
         var httpClient = new HttpClient(mockHttp);
@@ -41,6 +39,6 @@ public class GetAccessTokenHandlerTests
 
         // Assert
         result.ShouldNotBeNull();
-        result.ErrCode.ShouldBe("00");
+        result.Products.ShouldNotBeNull();
     }
 }

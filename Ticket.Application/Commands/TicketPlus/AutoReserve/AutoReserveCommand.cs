@@ -20,7 +20,7 @@ public class AutoReserveCommand : IRequest<AutoReserveDto>
     public string CountryCode { get; set; }
 
     /// <summary>
-    /// 加密過的密碼
+    /// 密碼
     /// </summary>
     public string Password { get; set; }
 

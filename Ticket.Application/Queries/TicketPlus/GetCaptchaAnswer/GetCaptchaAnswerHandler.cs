@@ -13,12 +13,12 @@ namespace Ticket.Application.Queries.TicketPlus.GetCaptchaAnswer;
 /// </summary>
 public class GetCaptchaAnswerHandler : IRequestHandler<GetCaptchaAnswerQuery, GetCaptchaAnswerDto>
 {
-    private readonly OrcHelpers _orcHelpers;
+    private readonly IOCRHelper _oCRHelper;
 
     public GetCaptchaAnswerHandler(
-        OrcHelpers orcHelpers)
+        IOCRHelper oCRHelper)
     {
-        _orcHelpers = orcHelpers;
+        _oCRHelper = oCRHelper;
     }
 
     public async Task<GetCaptchaAnswerDto> Handle(GetCaptchaAnswerQuery request, CancellationToken cancellationToken)
@@ -32,7 +32,7 @@ public class GetCaptchaAnswerHandler : IRequestHandler<GetCaptchaAnswerQuery, Ge
         g.Clear(Color.White);
         svgDocument.Draw(bitmap);
         bitmap.Save(resultStream, ImageFormat.Png);
-        bitmap.Save("result.jpg", ImageFormat.Png);
+        //bitmap.Save("result.jpg", ImageFormat.Png);
         resultStream.Position = 0;
 
         // stream to byte array
@@ -40,7 +40,7 @@ public class GetCaptchaAnswerHandler : IRequestHandler<GetCaptchaAnswerQuery, Ge
         resultStream.Read(bytes, 0, bytes.Length);
         resultStream.Seek(0, SeekOrigin.Begin);
 
-        var result = _orcHelpers.GetTextFromImage(bytes);
+        var result = _oCRHelper.GetTextFromImage(bytes);
 
         return new GetCaptchaAnswerDto
         {

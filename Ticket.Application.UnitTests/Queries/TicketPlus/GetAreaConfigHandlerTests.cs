@@ -5,32 +5,32 @@ using RichardSzalay.MockHttp;
 using Shouldly;
 using System.Diagnostics.CodeAnalysis;
 using System.Text.Json;
-using Ticket.Application.Queries.TicketPlus.GetAccessToken;
+using Ticket.Application.Queries.TicketPlus.GetAreaConfig;
 using Ticket.Application.UnitTests.AutoFixtureSettings;
 using Xunit;
 
 namespace Ticket.Application.UnitTests.Queries.TicketPlus;
 
 [ExcludeFromCodeCoverage]
-public class GetAccessTokenHandlerTests
+public class GetAreaConfigHandlerTests
 {
     [Theory]
     [AutoTestingData]
-    public async Task Handle_GetAccessTokenHandler_GiveValidRequest_ShouldReturnAccessToken(
+    public async Task Handle_GetAreaConfigHandler_GiveValidRequest_ShouldReturnAreaConfig(
         IFixture fixture,
         [Frozen] Mock<IHttpClientFactory> httpClientFactory,
-        GetAccessTokenHandler sut
+        GetAreaConfigHandler sut
         )
     {
         // Arrange
-        var request = fixture.Create<GetAccessTokenQuery>();
+        var request = fixture.Create<GetAreaConfigQuery>();
         var response = fixture
-            .Build<GetAccessTokenDto>()
+            .Build<GetAreaConfigDto>()
             .With(x => x.ErrCode, "00")
             .Create();
 
         var mockHttp = new MockHttpMessageHandler();
-        mockHttp.When("https://apis.ticketplus.com.tw/user/api/v1/login")
+        mockHttp.When("https://apis.ticketplus.com.tw/config/api/v1/get")
             .Respond("application/json", JsonSerializer.Serialize(response)); // Respond with JSON
 
         var httpClient = new HttpClient(mockHttp);
