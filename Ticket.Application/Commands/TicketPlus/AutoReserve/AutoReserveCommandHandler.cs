@@ -12,6 +12,7 @@ using Ticket.Application.Queries.TicketPlus.GetProductConfig;
 using Ticket.Application.Queries.TicketPlus.GetS3ProductInfo;
 using Ticket.Domain.Entities.TicketPlus;
 using Ticket.Domain.Enum;
+using Ticket.Domain.Events.TicketPlus;
 
 namespace Ticket.Application.Commands.TicketPlus.AutoReserve;
 
@@ -89,6 +90,31 @@ public class AutoReserveCommandHandler : IRequestHandler<AutoReserveCommand, Aut
             ? GetAreaProductId(areaConfigQueryDto, s3ProductInfoQueryDto, request.AreaName)
             : ticketConfigQueryDto.Result.Product.First().Id;
 
+        // 如果要自動避開已售完的票區需產生快取
+        if (request.IsCheckCount)
+        {
+            var processTicketCountTask = Task.Run(async () =>
+            {
+                while (cancellationToken.IsCancellationRequested is false)
+                {
+                    var newTicketConfigQueryDto = await _mediator.Send(new GetProductConfigQuery
+                    {
+                        ProductId = s3ProductInfoQueryDto.Products.Select(x => x.ProductId)
+                    }, cancellationToken);
+
+                    // 寫入快取
+                    _memoryCache.Set(
+                        string.Format(Const.ProductConfigCacheKey, request.ActivityId),
+                        newTicketConfigQueryDto, TimeSpan.FromHours(1));
+
+                    var countMessage = string.Join('\n', newTicketConfigQueryDto.Result.Product.Select(x => $"{x.Id}: {x.Count}"));
+                    _logger.LogInformation($"重新取得票區資訊: \n{countMessage}");
+
+                    await Task.Delay(1000, cancellationToken);
+                }
+            }, cancellationToken);
+        }
+
         // 是否需要重新產生驗證碼
         var isRegenerateCaptcha = true;
 
@@ -103,6 +129,7 @@ public class AutoReserveCommandHandler : IRequestHandler<AutoReserveCommand, Aut
                 return new AutoReserveDto { CreateReserveDto = new CreateReserveDto { } };
             }
 
+            // 是否需要重新產生驗證碼
             if (isRegenerateCaptcha)
             {
                 _logger.LogInformation($"需要重新產生驗證碼");
@@ -121,6 +148,31 @@ public class AutoReserveCommandHandler : IRequestHandler<AutoReserveCommand, Aut
                     Data = captchaDto.Data
                 }, cancellationToken);
                 _logger.LogInformation($"GetCaptchaAnswerQuery: {JsonSerializer.Serialize(captchaCode)}");
+            }
+
+            // 是否要自動避開已售完的票區
+            if (request.IsCheckCount)
+            {
+                var reCacheTicketConfigQueryDto =
+                    _memoryCache.Get<GetProductConfigDto>(string.Format(Const.ProductConfigCacheKey, request.ActivityId));
+
+                var isSoldOut = reCacheTicketConfigQueryDto.Result.Product.First(x => x.Id.Equals(expectProductId)).Count <= 0;
+
+                // 如果是賣完了就找其他票區
+                if (isSoldOut)
+                {
+                    _logger.LogInformation($"{expectProductId} 這票區數量為0");
+                    var newProduct = reCacheTicketConfigQueryDto.Result.Product.FirstOrDefault(x => x.Count > 0);
+                    if (newProduct is null)
+                    {
+                        _logger.LogInformation($"沒有其他有票的票區，使用原本的票區，ProductId: {expectProductId}");
+                    }
+                    else
+                    {
+                        _logger.LogInformation($"找到有票的票區，ProductId: {newProduct.Id}");
+                        expectProductId = newProduct.Id;
+                    }
+                }
             }
 
             // 預約票券
@@ -202,6 +254,12 @@ public class AutoReserveCommandHandler : IRequestHandler<AutoReserveCommand, Aut
             if (reserveResultDto.ErrCode.Equals("00") && reserveResultDto.Products.First().Status.Equals("RESERVED"))
             {
                 _logger.LogInformation($"預約成功");
+
+                await _mediator.Publish(new TicketReservedEvent
+                {
+                    ActivityId = request.ActivityId,
+                    Mobile = request.Mobile
+                }, cancellationToken);
                 return new AutoReserveDto { CreateReserveDto = reserveResultDto };
             }
 

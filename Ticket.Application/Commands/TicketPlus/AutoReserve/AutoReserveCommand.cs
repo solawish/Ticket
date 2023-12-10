@@ -33,4 +33,9 @@ public class AutoReserveCommand : IRequest<AutoReserveDto>
     /// 想要的票區關鍵字
     /// </summary>
     public string AreaName { get; set; }
+
+    /// <summary>
+    /// 是否要自動略過已售完的票區
+    /// </summary>
+    public bool IsCheckCount { get; set; }
 }
