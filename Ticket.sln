@@ -20,7 +20,9 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Package", "Package", "{CB71
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ddddocrsharp", "ddddocrsharp\ddddocrsharp.csproj", "{62FCDDB0-BB2F-469E-A59B-11835EA174DD}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Ticket.Infrastructure", "Ticket.Infrastructure\Ticket.Infrastructure.csproj", "{33A0629D-C5BB-4A1A-AAA3-8B6016090219}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Ticket.Infrastructure", "Ticket.Infrastructure\Ticket.Infrastructure.csproj", "{33A0629D-C5BB-4A1A-AAA3-8B6016090219}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{3A74D7A7-ABD8-4918-A202-9233A40F4FE6}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

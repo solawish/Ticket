@@ -47,7 +47,7 @@ public class ConfigureSwaggerOptions : IConfigureOptions<SwaggerGenOptions>
     {
         var info = new OpenApiInfo
         {
-            Title = $"Aps Service {description.GroupName}",
+            Title = $"Ticket {description.GroupName}",
             Version = description.GroupName
         };
 

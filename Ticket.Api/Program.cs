@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Rewrite;
+﻿using Asp.Versioning.ApiExplorer;
+using Microsoft.AspNetCore.Rewrite;
 using System.Net;
 using Ticket.Api.Infrastructure.ApiVersion;
 using Ticket.Api.Infrastructure.SwaggerConfigs;
@@ -32,8 +33,29 @@ var app = builder.Build();
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
+    var serviceProvider = builder.Services.BuildServiceProvider();
+    var apiProvider = serviceProvider.GetRequiredService<IApiVersionDescriptionProvider>();
+
     app.UseSwagger();
-    app.UseSwaggerUI();
+    app.UseSwaggerUI(options =>
+    {
+        foreach (var description in apiProvider.ApiVersionDescriptions)
+        {
+            options.SwaggerEndpoint(
+                $"{description.GroupName}/swagger.json",
+                $"Ticket {description.GroupName}");
+        }
+    });
+
+    app.UseReDoc(options =>
+    {
+        foreach (var description in apiProvider.ApiVersionDescriptions)
+        {
+            options.SpecUrl($"/swagger/{description.GroupName}/swagger.json");
+            options.RoutePrefix = "redoc";
+            options.DocumentTitle = $"Ticket {description.GroupName}";
+        }
+    });
 }
 
 app.UseHttpsRedirection();
