@@ -48,7 +48,7 @@ public class AutoReserveCommandHandler : IRequestHandler<AutoReserveCommand, Aut
             {
                 ActivityId = request.ActivityId
             }, cancellationToken);
-        _logger.LogInformation($"GetS3ProductInfoQuery: {JsonSerializer.Serialize(s3ProductInfoQueryDto)}");
+        _logger.LogInformation("GetS3ProductInfoQuery: {s3ProductInfoQueryDto}", JsonSerializer.Serialize(s3ProductInfoQueryDto));
 
         // 再從結果中的ProductId去取得票券的資訊
         var ticketConfigQueryDto = _memoryCache.TryGetValue(
@@ -59,7 +59,7 @@ public class AutoReserveCommandHandler : IRequestHandler<AutoReserveCommand, Aut
             {
                 ProductId = s3ProductInfoQueryDto.Products.Select(x => x.ProductId)
             }, cancellationToken);
-        _logger.LogInformation($"GetProductConfigQuery: {JsonSerializer.Serialize(ticketConfigQueryDto)}");
+        _logger.LogInformation("GetProductConfigQuery: {ticketConfigQueryDto}", JsonSerializer.Serialize(ticketConfigQueryDto));
 
         // 取得票區的資訊
         var areaConfigQueryDto = _memoryCache.TryGetValue(
@@ -70,7 +70,7 @@ public class AutoReserveCommandHandler : IRequestHandler<AutoReserveCommand, Aut
             {
                 TicketAreaId = s3ProductInfoQueryDto.Products.Where(x => string.IsNullOrEmpty(x.TicketAreaId) is false).Select(x => x.TicketAreaId)
             }, cancellationToken);
-        _logger.LogInformation($"GetAreaConfigQuery: {JsonSerializer.Serialize(areaConfigQueryDto)}");
+        _logger.LogInformation("GetAreaConfigQuery {areaConfigQueryDto}", JsonSerializer.Serialize(areaConfigQueryDto));
 
         // 取得登入的accessToken
         var accessTokenDto = _memoryCache.TryGetValue(
@@ -83,7 +83,7 @@ public class AutoReserveCommandHandler : IRequestHandler<AutoReserveCommand, Aut
                 Mobile = request.Mobile,
                 Password = request.Password
             }, cancellationToken);
-        _logger.LogInformation($"GetAccessTokenQuery: {JsonSerializer.Serialize(accessTokenDto)}");
+        _logger.LogInformation("GetAccessTokenQuery: {accessTokenDto}", JsonSerializer.Serialize(accessTokenDto));
 
         // 有沒有想要的票區
         var expectProductId = string.IsNullOrEmpty(request.AreaName) is false
@@ -108,7 +108,7 @@ public class AutoReserveCommandHandler : IRequestHandler<AutoReserveCommand, Aut
                         newTicketConfigQueryDto, TimeSpan.FromHours(1));
 
                     var countMessage = string.Join('\n', newTicketConfigQueryDto.Result.Product.Select(x => $"{x.Id}: {x.Count}"));
-                    _logger.LogInformation($"重新取得票區資訊: \n{countMessage}");
+                    _logger.LogInformation("重新取得票區資訊: \n{countMessage}", countMessage);
 
                     await Task.Delay(1000, cancellationToken);
                 }
@@ -147,7 +147,7 @@ public class AutoReserveCommandHandler : IRequestHandler<AutoReserveCommand, Aut
                 {
                     Data = captchaDto.Data
                 }, cancellationToken);
-                _logger.LogInformation($"GetCaptchaAnswerQuery: {JsonSerializer.Serialize(captchaCode)}");
+                _logger.LogInformation("GetCaptchaAnswerQuery: {captchaCode}", JsonSerializer.Serialize(captchaCode));
             }
 
             // 是否要自動避開已售完的票區
@@ -165,11 +165,11 @@ public class AutoReserveCommandHandler : IRequestHandler<AutoReserveCommand, Aut
                     var newProduct = reCacheTicketConfigQueryDto.Result.Product.FirstOrDefault(x => x.Count > 0);
                     if (newProduct is null)
                     {
-                        _logger.LogInformation($"沒有其他有票的票區，使用原本的票區，ProductId: {expectProductId}");
+                        _logger.LogInformation("沒有其他有票的票區，使用原本的票區，ProductId: {expectProductId}", expectProductId);
                     }
                     else
                     {
-                        _logger.LogInformation($"找到有票的票區，ProductId: {newProduct.Id}");
+                        _logger.LogInformation("找到有票的票區，ProductId: {newProduct.Id}", newProduct.Id);
                         expectProductId = newProduct.Id;
                     }
                 }
@@ -193,7 +193,7 @@ public class AutoReserveCommandHandler : IRequestHandler<AutoReserveCommand, Aut
                 },
                 Token = accessTokenDto.UserInfo.Access_token
             }, cancellationToken);
-            _logger.LogInformation($"CreateReserveCommand: {JsonSerializer.Serialize(reserveResultDto)}");
+            _logger.LogInformation("CreateReserveCommand: {reserveResultDto}", JsonSerializer.Serialize(reserveResultDto));
 
             // 如果是賣完了就重來
             if (reserveResultDto.ErrCode.Equals(((int)ErrorCodeEnum.TicketAreaLimitExceeded).ToString()))
@@ -277,11 +277,11 @@ public class AutoReserveCommandHandler : IRequestHandler<AutoReserveCommand, Aut
         {
             var defaultProduct = s3ProductInfoQueryDto.Products.FirstOrDefault();
             var defaultArea = areaConfigQueryDto.Result.TicketArea.FirstOrDefault(x => x.Id.Equals(defaultProduct.TicketAreaId));
-            _logger.LogInformation($"找不到想要的票區，使用第一個票區， AreaName: {defaultArea.TicketAreaName}");
+            _logger.LogInformation("找不到想要的票區，使用第一個票區， AreaName: {defaultArea.TicketAreaName}", defaultArea.TicketAreaName);
             return defaultProduct.TicketAreaId;
         }
         var expectProductId = s3ProductInfoQueryDto.Products.FirstOrDefault(x => x.TicketAreaId.Equals(area.Id)).ProductId;
-        _logger.LogInformation($"找到想要的票區，AreaName: {area.TicketAreaName}");
+        _logger.LogInformation("找到想要的票區，AreaName: {area.TicketAreaName}", area.TicketAreaName);
         return expectProductId;
     }
 }
