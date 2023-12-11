@@ -1,4 +1,4 @@
-﻿namespace Ticket.Application.Commands.TicketPlus.CreateReserve;
+﻿namespace Ticket.Domain.Entities.TicketPlus;
 
 public class ReserveProduct
 {

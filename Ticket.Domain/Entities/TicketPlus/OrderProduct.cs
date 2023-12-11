@@ -1,6 +1,6 @@
-﻿namespace Ticket.Application.Commands.TicketPlus.CreateReserve;
+﻿namespace Ticket.Domain.Entities.TicketPlus;
 
-public class ReserveProductResult
+public class OrderProduct
 {
     //{
     //            "idx": 6319745,

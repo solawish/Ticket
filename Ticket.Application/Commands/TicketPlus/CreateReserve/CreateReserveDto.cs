@@ -1,4 +1,6 @@
-﻿namespace Ticket.Application.Commands.TicketPlus.CreateReserve;
+﻿using Ticket.Domain.Entities.TicketPlus;
+
+namespace Ticket.Application.Commands.TicketPlus.CreateReserve;
 
 public class CreateReserveDto
 {
@@ -29,10 +31,16 @@ public class CreateReserveDto
     public string ErrCode { get; set; }
 
     public string ErrMsg { get; set; }
+
     public string ErrDetail { get; set; }
-    public List<ReserveProductResult> Products { get; set; }
+
+    public List<OrderProduct> Products { get; set; }
+
     public int OrderId { get; set; }
+
     public int Total { get; set; }
+
     public string Hash { get; set; }
+
     public bool FinalizedSeats { get; set; }
 }
