@@ -271,18 +271,37 @@ public class AutoReserveCommandHandler : IRequestHandler<AutoReserveCommand, Aut
         }
     }
 
-    private string GetAreaProductId(GetAreaConfigDto areaConfigQueryDto, GetS3ProductInfoDto s3ProductInfoQueryDto, string areaName)
+    /// <summary>
+    /// 尋找匹配的票區or票名
+    /// </summary>
+    /// <param name="areaConfigQueryDto"></param>
+    /// <param name="s3ProductInfoQueryDto"></param>
+    /// <param name="areaName"></param>
+    /// <returns></returns>
+    private string GetAreaProductId(
+        GetAreaConfigDto areaConfigQueryDto,
+        GetS3ProductInfoDto s3ProductInfoQueryDto,
+        string areaName)
     {
+        // 先找有沒有符合的票區，有些活動可能會沒有票區(tickerArea)只有票名(productName)
         var area = areaConfigQueryDto.Result.TicketArea.FirstOrDefault(x => x.TicketAreaName.Contains(areaName));
         if (area is null)
         {
-            var defaultProduct = s3ProductInfoQueryDto.Products.FirstOrDefault();
-            var defaultArea = areaConfigQueryDto.Result.TicketArea.FirstOrDefault(x => x.Id.Equals(defaultProduct.TicketAreaId));
-            _logger.LogInformation("找不到想要的票區，使用第一個票區， AreaName: {defaultArea.TicketAreaName}", defaultArea.TicketAreaName);
-            return defaultProduct.TicketAreaId;
+            _logger.LogInformation("找不到想要的票區，嘗試使用票名");
+
+            var product = s3ProductInfoQueryDto.Products.FirstOrDefault(x => x.Name.Contains(areaName));
+            if (product is null)
+            {
+                var defaultProductId = s3ProductInfoQueryDto.Products.First().ProductId;
+                _logger.LogInformation("找不到想要的票名，使用第一個產品ID， ProductId: {defaultProductId}", defaultProductId);
+                return defaultProductId;
+            }
+
+            _logger.LogInformation("找到想要的票名，ProductName: {Name}", product.Name);
+            return product.ProductId;
         }
         var expectProductId = s3ProductInfoQueryDto.Products.FirstOrDefault(x => x.TicketAreaId.Equals(area.Id)).ProductId;
-        _logger.LogInformation("找到想要的票區，AreaName: {area.TicketAreaName}", area.TicketAreaName);
+        _logger.LogInformation("找到想要的票區，AreaName: {TicketAreaName}", area.TicketAreaName);
         return expectProductId;
     }
 }
