@@ -1,10 +1,12 @@
 ﻿using AutoFixture;
 using AutoFixture.Xunit2;
+using Microsoft.Extensions.Options;
 using Moq;
 using RichardSzalay.MockHttp;
 using Shouldly;
 using System.Diagnostics.CodeAnalysis;
 using System.Text.Json;
+using Ticket.Application.Options;
 using Ticket.Application.Queries.TicketPlus.GetS3ProductInfo;
 using Ticket.Application.UnitTests.AutoFixtureSettings;
 using Xunit;
@@ -19,6 +21,7 @@ public class GetS3ProductInfoQueryHandlerTests
     public async Task Handler_GetS3ProductInfoQueryHandler_GiveValidRequest_ShouldReturnS3ProductInfo(
         IFixture fixture,
         [Frozen] Mock<IHttpClientFactory> httpClientFactory,
+        IOptions<TicketPlusOptions> options,
         GetS3ProductInfoQueryHandler sut)
     {
         // Arrange
@@ -28,8 +31,10 @@ public class GetS3ProductInfoQueryHandlerTests
             .Create();
 
         var mockHttp = new MockHttpMessageHandler();
-        mockHttp.When("https://config.ticketplus.com.tw/config/api/v1/getS3")
-            .Respond("application/json", JsonSerializer.Serialize(response)); // Respond with JSON
+        var mockRequest = mockHttp
+            .When(HttpMethod.Get, options.Value.S3ConfigUrl)
+            .WithQueryString("path", $"event/{request.ActivityId}/products.json")
+            .Respond("application/json", JsonSerializer.Serialize(response));
 
         var httpClient = new HttpClient(mockHttp);
         httpClientFactory.Setup(x => x.CreateClient(It.IsAny<string>())).Returns(httpClient);
@@ -40,5 +45,6 @@ public class GetS3ProductInfoQueryHandlerTests
         // Assert
         result.ShouldNotBeNull();
         result.Products.ShouldNotBeNull();
+        mockHttp.GetMatchCount(mockRequest).ShouldBe(1);
     }
 }

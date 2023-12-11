@@ -23,6 +23,7 @@ public static class DependencyInjection
 
         services.AddSingleton<dddddocr>(new dddddocr(det: false, old: true, show_ad: false));
         services.AddSingleton<IOCRHelper, OCRHelper>();
+        services.AddSingleton<IMD5Helper, MD5Helper>();
 
         services.AddMemoryCache();
 
