@@ -24,12 +24,12 @@ public class GetAreaConfigHandler : IRequestHandler<GetAreaConfigQuery, GetAreaC
 
     public async Task<GetAreaConfigDto> Handle(GetAreaConfigQuery request, CancellationToken cancellationToken)
     {
-        var httpClient = _httpClientFactory.CreateClient(_ticketPlusOptions.Value.Name);
-
         if (request.TicketAreaId.Any() is false)
         {
             return new GetAreaConfigDto();
         }
+
+        var httpClient = _httpClientFactory.CreateClient(_ticketPlusOptions.Value.Name);
 
         var response = await httpClient.GetAsync(
             $"{_ticketPlusOptions.Value.ConfigUrl}?ticketAreaId={string.Join(',', request.TicketAreaId.Distinct())}",

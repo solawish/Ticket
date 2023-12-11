@@ -34,6 +34,43 @@ public class GetAreaConfigHandlerTests
         var mockHttp = new MockHttpMessageHandler();
         var mockRequest = mockHttp
             .When(HttpMethod.Get, options.Value.ConfigUrl)
+            .WithQueryString("ticketAreaId", string.Join(',', request.TicketAreaId))
+            .Respond("application/json", JsonSerializer.Serialize(response));
+
+        var httpClient = new HttpClient(mockHttp);
+        httpClientFactory.Setup(x => x.CreateClient(It.IsAny<string>())).Returns(httpClient);
+
+        // Act
+        var result = await sut.Handle(request, CancellationToken.None);
+
+        // Assert
+        result.ShouldNotBeNull();
+        result.Result.ShouldNotBeNull();
+        result.Result.TicketArea.ShouldNotBeNull();
+        mockHttp.GetMatchCount(mockRequest).ShouldBe(1);
+    }
+
+    [Theory]
+    [AutoTestingData]
+    public async Task Handle_GetAreaConfigHandler_GiveRepeatTicketAreaId_SholudDistinct_AndReturnAreaConfig(
+        IFixture fixture,
+        [Frozen] Mock<IHttpClientFactory> httpClientFactory,
+        IOptions<TicketPlusOptions> options,
+        GetAreaConfigHandler sut
+        )
+    {
+        // Arrange
+        var request = fixture
+            .Build<GetAreaConfigQuery>()
+            .With(x => x.TicketAreaId, new List<string> { "1", "1", "2", "3" })
+            .Create();
+        var response = fixture
+            .Build<GetAreaConfigDto>()
+            .Create();
+
+        var mockHttp = new MockHttpMessageHandler();
+        var mockRequest = mockHttp
+            .When(HttpMethod.Get, options.Value.ConfigUrl)
             .WithQueryString("ticketAreaId", string.Join(',', request.TicketAreaId.Distinct()))
             .Respond("application/json", JsonSerializer.Serialize(response));
 
@@ -48,5 +85,30 @@ public class GetAreaConfigHandlerTests
         result.Result.ShouldNotBeNull();
         result.Result.TicketArea.ShouldNotBeNull();
         mockHttp.GetMatchCount(mockRequest).ShouldBe(1);
+    }
+
+    [Theory]
+    [AutoTestingData]
+    public async Task Handle_GetAreaConfigHandler_GiveEmptyTicketAreaId_ShouldReturnEmptyAreaConfig(
+        IFixture fixture,
+        GetAreaConfigHandler sut
+        )
+    {
+        // Arrange
+        var request = fixture
+            .Build<GetAreaConfigQuery>()
+            .With(x => x.TicketAreaId, new List<string>())
+            .Create();
+        var response = fixture
+            .Build<GetAreaConfigDto>()
+            .Create();
+
+        // Act
+        var result = await sut.Handle(request, CancellationToken.None);
+
+        // Assert
+        result.ShouldNotBeNull();
+        result.Result.ShouldNotBeNull();
+        result.Result.TicketArea.ShouldNotBeNull();
     }
 }
