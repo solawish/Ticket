@@ -1,4 +1,4 @@
-﻿namespace Ticket.Application.Queries.TicketPlus.GetAccessToken;
+﻿namespace Ticket.Domain.Entities.TicketPlus;
 
 public class UserInfo
 {

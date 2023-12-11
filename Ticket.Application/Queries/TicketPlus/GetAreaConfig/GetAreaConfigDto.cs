@@ -1,4 +1,6 @@
-﻿namespace Ticket.Application.Queries.TicketPlus.GetAreaConfig;
+﻿using Ticket.Domain.Entities.TicketPlus;
+
+namespace Ticket.Application.Queries.TicketPlus.GetAreaConfig;
 
 public class GetAreaConfigDto
 {
@@ -8,7 +10,7 @@ public class GetAreaConfigDto
 
     public string ErrDetail { get; set; }
 
-    public AreaConfiResult Result { get; set; }
+    public AreaConfiResult Result { get; set; } = new AreaConfiResult();
 }
 
 public class AreaConfiResult

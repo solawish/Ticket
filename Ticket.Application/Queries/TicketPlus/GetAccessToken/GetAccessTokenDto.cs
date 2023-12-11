@@ -1,4 +1,6 @@
-﻿namespace Ticket.Application.Queries.TicketPlus.GetAccessToken;
+﻿using Ticket.Domain.Entities.TicketPlus;
+
+namespace Ticket.Application.Queries.TicketPlus.GetAccessToken;
 
 public class GetAccessTokenDto
 {

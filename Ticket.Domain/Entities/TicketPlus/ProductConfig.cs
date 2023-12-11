@@ -1,4 +1,4 @@
-﻿namespace Ticket.Application.Queries.TicketPlus.GetProductConfig;
+﻿namespace Ticket.Domain.Entities.TicketPlus;
 
 public class ProductConfig
 {

@@ -1,4 +1,6 @@
-﻿namespace Ticket.Application.Queries.TicketPlus.GetProductConfig;
+﻿using Ticket.Domain.Entities.TicketPlus;
+
+namespace Ticket.Application.Queries.TicketPlus.GetProductConfig;
 
 public class GetProductConfigDto
 {
@@ -46,7 +48,7 @@ public class GetProductConfigDto
 
     public string ErrDetail { get; set; }
 
-    public Result Result { get; set; }
+    public Result Result { get; set; } = new Result();
 }
 
 public class Result

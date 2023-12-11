@@ -1,4 +1,4 @@
-﻿namespace Ticket.Application.Queries.TicketPlus.GetAreaConfig;
+﻿namespace Ticket.Domain.Entities.TicketPlus;
 
 public class TicketArea
 {
