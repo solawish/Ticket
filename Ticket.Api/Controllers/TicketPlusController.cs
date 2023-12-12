@@ -1,6 +1,7 @@
 ﻿using Asp.Versioning;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
+using Ticket.Api.Infrastructure.Filters;
 using Ticket.Application.Commands.TicketPlus.AutoReserve;
 using Ticket.Application.Commands.TicketPlus.CreateReserve;
 using Ticket.Application.Commands.TicketPlus.GenerateCaptcha;
@@ -163,6 +164,7 @@ public class TicketPlusController : ControllerBase
     [Route("Reserve")]
     [ProducesResponseType(typeof(CreateReserveDto), 200)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [CustomValidator(typeof(CreateReserveCommandValidator))]
     public async Task<IActionResult> Post([FromBody] CreateReserveCommand createReserveCommand)
     {
         var result = await _mediator.Send(createReserveCommand);
@@ -179,6 +181,7 @@ public class TicketPlusController : ControllerBase
     [Route("AutoReserve")]
     [ProducesResponseType(typeof(AutoReserveDto), 200)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [CustomValidator(typeof(AutoReserveCommandValidator))]
     public async Task<IActionResult> Post([FromBody] AutoReserveCommand autoReserveCommand, CancellationToken cancellationToken)
     {
         var result = await _mediator.Send(autoReserveCommand, cancellationToken);
