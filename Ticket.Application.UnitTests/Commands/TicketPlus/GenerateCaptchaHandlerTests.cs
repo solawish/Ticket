@@ -4,6 +4,7 @@ using Microsoft.Extensions.Options;
 using Moq;
 using RichardSzalay.MockHttp;
 using Shouldly;
+using System.Diagnostics.CodeAnalysis;
 using System.Text.Json;
 using Ticket.Application.Commands.TicketPlus.GenerateCaptcha;
 using Ticket.Application.Options;
@@ -12,6 +13,7 @@ using Xunit;
 
 namespace Ticket.Application.UnitTests.Commands.TicketPlus;
 
+[ExcludeFromCodeCoverage]
 public class GenerateCaptchaHandlerTests
 {
     [Theory]

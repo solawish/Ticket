@@ -10,7 +10,7 @@ using Ticket.Application.Queries.TicketPlus.GetCaptchaAnswer;
 using Ticket.Application.Queries.TicketPlus.GetProductConfig;
 using Ticket.Application.Queries.TicketPlus.GetS3ProductInfo;
 using Ticket.Domain.Entities.TicketPlus;
-using Ticket.Domain.Enum;
+using Ticket.Domain.Enum.TicketPlus;
 using Ticket.Domain.Events.TicketPlus;
 
 namespace Ticket.Application.Commands.TicketPlus.AutoReserve;
@@ -263,7 +263,7 @@ public class AutoReserveCommandHandler : IRequestHandler<AutoReserveCommand, Aut
             }
 
             // 如果是成功就回傳成功
-            if (reserveResultDto.ErrCode.Equals("00") && reserveResultDto.Products.First().Status.Equals("RESERVED"))
+            if (reserveResultDto.ErrCode.Equals(Domain.Common.TicketPlus.Const.SuccessCode) && reserveResultDto.Products.First().Status.Equals(OrderStatusEnum.RESERVED.ToString()))
             {
                 _logger.LogInformation("預約成功");
 

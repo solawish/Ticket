@@ -1,4 +1,4 @@
-﻿namespace Ticket.Domain.Enum;
+﻿namespace Ticket.Domain.Enum.TicketPlus;
 
 public enum ErrorCodeEnum
 {
