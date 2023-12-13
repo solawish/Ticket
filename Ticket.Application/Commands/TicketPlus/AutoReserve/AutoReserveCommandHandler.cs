@@ -218,6 +218,17 @@ public class AutoReserveCommandHandler : IRequestHandler<AutoReserveCommand, Aut
                 continue;
             }
 
+            // 如果是場次賣完了就重來
+            if (reserveResultDto.ErrCode.Equals(((int)ErrorCodeEnum.SessionSoldOut).ToString()))
+            {
+                _logger.LogInformation("這場次賣完了");
+                isRegenerateCaptcha = false;
+
+                // 很急就 不要delay
+                await Task.Delay(delayTime, cancellationToken);
+                continue;
+            }
+
             // 如果結果是驗證碼錯誤就要重產驗證碼
             if (reserveResultDto.ErrCode.Equals(((int)ErrorCodeEnum.CaptchaFailed).ToString()))
             {
