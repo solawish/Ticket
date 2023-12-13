@@ -7,7 +7,6 @@ public class GetS3ProductInfoQueryValidator : AbstractValidator<GetS3ProductInfo
     public GetS3ProductInfoQueryValidator()
     {
         RuleFor(x => x.ActivityId)
-            .NotEmpty()
-            .WithMessage("ActivityId is required.");
+            .NotEmpty();
     }
 }

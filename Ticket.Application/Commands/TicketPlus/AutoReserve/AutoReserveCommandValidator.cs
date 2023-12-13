@@ -7,24 +7,19 @@ public class AutoReserveCommandValidator : AbstractValidator<AutoReserveCommand>
     public AutoReserveCommandValidator()
     {
         RuleFor(x => x.ActivityId)
-            .NotEmpty()
-            .WithMessage("ActivityId is required.");
+            .NotEmpty();
 
         RuleFor(x => x.Mobile)
-            .NotEmpty()
-            .WithMessage("Mobile is required.");
+            .NotEmpty();
 
         RuleFor(x => x.CountryCode)
-            .NotEmpty()
-            .WithMessage("CountryCode is required.");
+            .NotEmpty();
 
         RuleFor(x => x.Password)
-            .NotEmpty()
-            .WithMessage("Password is required.");
+            .NotEmpty();
 
         RuleFor(x => x.Count)
             .NotEmpty()
-            .GreaterThan(0)
-            .WithMessage("Count is required.");
+            .GreaterThan(0);
     }
 }
