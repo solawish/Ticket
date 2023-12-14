@@ -149,7 +149,7 @@ public class AutoReserveCommandHandler : IRequestHandler<AutoReserveCommand, Aut
                 _logger.LogInformation("GetCaptchaAnswerQuery: {@captchaCode}", captchaCode);
             }
 
-            // 是否要自動避開已售完的票區
+            // 是否要自動避開已售完的票區 因為票區資訊來源為api 避免影響到速度所以只取快取的資料 會有背景task持續取得資料並新增至快取
             if (request.IsCheckCount)
             {
                 if (_memoryCache.TryGetValue(
