@@ -594,7 +594,8 @@ public class AutoReserveCommandHandlerTests
         mediator.Setup(x => x.Send(It.IsAny<CreateReserveCommand>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(createReserveDto);
 
-        memoryCache.Setup(x => x.TryGetValue(Ticket.Application.Common.Const.ProductConfigCacheKey, out getProductConfigDto))
+        object obj = getProductConfigDto as object;
+        memoryCache.Setup(x => x.TryGetValue(Ticket.Application.Common.Const.ProductConfigCacheKey, out obj))
             .Returns(true);
 
         // Act
@@ -678,7 +679,8 @@ public class AutoReserveCommandHandlerTests
         mediator.Setup(x => x.Send(It.IsAny<CreateReserveCommand>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(createReserveDto);
 
-        memoryCache.Setup(x => x.TryGetValue<GetProductConfigDto>(Ticket.Application.Common.Const.ProductConfigCacheKey, out getProductConfigDto))
+        object obj = getProductConfigDto as object;
+        memoryCache.Setup(x => x.TryGetValue(string.Format(Application.Common.Const.ProductConfigCacheKey, request.ActivityId), out obj))
             .Returns(true);
 
         // Act
@@ -692,5 +694,90 @@ public class AutoReserveCommandHandlerTests
         result.CreateReserveDto.Products.First().Status.ShouldBe(OrderStatusEnum.RESERVED.ToString());
         mediator.Verify(x => x.Send(It.Is<CreateReserveCommand>(x =>
                    x.Products.First().ProductId.Equals(productConfig.First(x => x.Count > 0).Id)), It.IsAny<CancellationToken>()), Times.Once);
+    }
+
+    [Theory]
+    [AutoTestingData]
+    public async Task Handle_AutoReserveCommandHandler_GiveValidRequest_WithNoAreaName_WithCheckCount_WithNoAnyCache_NoProductHasCount_SholuedChooseFirstProduct_ReturnReserveSuccess(
+        IFixture fixture,
+        [Frozen] Mock<IMediator> mediator,
+        [Frozen] Mock<IMemoryCache> memoryCache,
+        AutoReserveCommandHandler sut
+        )
+    {
+        // Arrange
+        var request = fixture
+            .Build<AutoReserveCommand>()
+            .With(x => x.AreaName, "")
+            .With(x => x.IsCheckCount, true)
+            .Create();
+
+        var products = fixture.Build<Product>()
+            .CreateMany(3);
+        var getS3ProductInfoDto = fixture
+            .Build<GetS3ProductInfoDto>()
+            .With(x => x.Products, products)
+            .Create();
+        var productConfig = fixture
+            .Build<ProductConfig>()
+            .WithValues(x => x.Id, products.Select(x => x.ProductId).ToArray())
+            .WithValues(x => x.Count, 0, 0, 0)
+            .CreateMany(3);
+        var getProductConfigDto = fixture
+            .Build<GetProductConfigDto>()
+            .With(x => x.Result, new Result { Product = productConfig.ToList() })
+            .Create();
+        var getAreaConfigDto = fixture
+            .Build<GetAreaConfigDto>()
+            .Create();
+        var accessTokenDto = fixture
+            .Build<GetAccessTokenDto>()
+            .Create();
+        var generateCaptchaDto = fixture
+            .Build<GenerateCaptchaDto>()
+            .Create();
+        var getCaptchaAnswerDto = fixture
+            .Build<GetCaptchaAnswerDto>()
+            .Create();
+        var reserveProductDto = fixture
+            .Build<OrderProduct>()
+            .With(x => x.Status, OrderStatusEnum.RESERVED.ToString())
+            .Create();
+        var createReserveDto = fixture
+            .Build<CreateReserveDto>()
+            .With(x => x.ErrCode, Const.SuccessCode)
+            .With(x => x.Products, new List<OrderProduct> { reserveProductDto })
+            .Create();
+
+        mediator.Setup(x => x.Send(It.IsAny<GetS3ProductInfoQuery>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(getS3ProductInfoDto);
+        mediator.Setup(x => x.Send(It.IsAny<GetProductConfigQuery>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(getProductConfigDto);
+        mediator.Setup(x => x.Send(It.IsAny<GetAreaConfigQuery>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(getAreaConfigDto);
+        mediator.Setup(x => x.Send(It.IsAny<GetAccessTokenQuery>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(accessTokenDto);
+        mediator.Setup(x => x.Send(It.IsAny<GenerateCaptchaCommand>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(generateCaptchaDto);
+        mediator.Setup(x => x.Send(It.IsAny<GetCaptchaAnswerQuery>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(getCaptchaAnswerDto);
+        mediator.Setup(x => x.Send(It.IsAny<CreateReserveCommand>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(createReserveDto);
+
+        object obj = getProductConfigDto as object;
+        memoryCache.Setup(x => x.TryGetValue(Ticket.Application.Common.Const.ProductConfigCacheKey, out obj))
+            .Returns(true);
+
+        // Act
+        var result = await sut.Handle(request, CancellationToken.None);
+
+        // Assert
+        result.ShouldNotBeNull();
+        result.CreateReserveDto.ErrCode.ShouldBe(Const.SuccessCode);
+        result.CreateReserveDto.Products.ShouldNotBeNull();
+        result.CreateReserveDto.Products.Count.ShouldBe(1);
+        result.CreateReserveDto.Products.First().Status.ShouldBe(OrderStatusEnum.RESERVED.ToString());
+        mediator.Verify(x => x.Send(It.Is<CreateReserveCommand>(x =>
+                   x.Products.First().ProductId.Equals(products.First().ProductId)), It.IsAny<CancellationToken>()), Times.Once);
     }
 }

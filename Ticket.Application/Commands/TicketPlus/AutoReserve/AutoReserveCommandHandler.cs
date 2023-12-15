@@ -154,9 +154,10 @@ public class AutoReserveCommandHandler : IRequestHandler<AutoReserveCommand, Aut
             {
                 if (_memoryCache.TryGetValue(
                     string.Format(Const.ProductConfigCacheKey, request.ActivityId),
-                    out GetProductConfigDto reCacheTicketConfigQueryDto))
+                    out var outCacheValue))
                 {
-                    var isSoldOut = reCacheTicketConfigQueryDto.Result.Product.First(x => x.Id.Equals(expectProductId)).Count <= 0;
+                    var reCacheTicketConfigQueryDto = outCacheValue as GetProductConfigDto;
+                    var isSoldOut = (reCacheTicketConfigQueryDto as GetProductConfigDto).Result.Product.First(x => x.Id.Equals(expectProductId)).Count <= 0;
 
                     // 如果是賣完了就找其他票區
                     if (isSoldOut)
