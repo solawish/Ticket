@@ -1,7 +1,7 @@
 ﻿using MediatR;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
-using Ticket.Application.Common;
+using Ticket.Application.Common.TicketPlus;
 using Ticket.Application.Queries.TicketPlus.GetAreaConfig;
 using Ticket.Application.Queries.TicketPlus.GetProductConfig;
 using Ticket.Application.Queries.TicketPlus.GetS3ProductInfo;
@@ -35,21 +35,21 @@ public class InitialActivityCacheCommandHandler : IRequestHandler<InitialActivit
         {
             ActivityId = request.ActivityId
         }, cancellationToken);
-        _memoryCache.Set(string.Format(Const.S3ProductInfoCacheKey, request.ActivityId), s3ProductInfoQueryDto, TimeSpan.FromHours(1));
+        _memoryCache.Set(string.Format(CacheKey.S3ProductInfoCacheKey, request.ActivityId), s3ProductInfoQueryDto, TimeSpan.FromHours(1));
 
         // 再從結果中的ProductId去取得票券的資訊
         var ticketConfigQueryDto = await _mediator.Send(new GetProductConfigQuery
         {
             ProductId = s3ProductInfoQueryDto.Products.Select(x => x.ProductId)
         }, cancellationToken);
-        _memoryCache.Set(string.Format(Const.ProductConfigCacheKey, request.ActivityId), ticketConfigQueryDto, TimeSpan.FromHours(1));
+        _memoryCache.Set(string.Format(CacheKey.ProductConfigCacheKey, request.ActivityId), ticketConfigQueryDto, TimeSpan.FromHours(1));
 
         // 取得票區的資訊
         var areaConfigQueryDto = await _mediator.Send(new GetAreaConfigQuery
         {
             TicketAreaId = s3ProductInfoQueryDto.Products.Select(x => x.TicketAreaId)
         }, cancellationToken);
-        _memoryCache.Set(string.Format(Const.AreaConfigCacheKey, request.ActivityId), areaConfigQueryDto, TimeSpan.FromHours(1));
+        _memoryCache.Set(string.Format(CacheKey.AreaConfigCacheKey, request.ActivityId), areaConfigQueryDto, TimeSpan.FromHours(1));
 
         return new InitialActivityCacheDto();
     }

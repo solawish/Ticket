@@ -1,6 +1,6 @@
 ﻿using MediatR;
 using Microsoft.Extensions.Caching.Memory;
-using Ticket.Application.Common;
+using Ticket.Application.Common.TicketPlus;
 using Ticket.Application.Queries.TicketPlus.GetAccessToken;
 
 namespace Ticket.Application.Commands.TicketPlus.InitialUser;
@@ -31,7 +31,7 @@ public class InitialUserCacheCommandHandler : IRequestHandler<InitialUserCacheCo
             Password = request.Password
         }, cancellationToken);
 
-        _memoryCache.Set(string.Format(Const.UserCacheKey, request.Mobile), accessTokenDto, TimeSpan.FromHours(1));
+        _memoryCache.Set(string.Format(CacheKey.UserCacheKey, request.Mobile), accessTokenDto, TimeSpan.FromHours(1));
         return new InitialUserCacheDto();
     }
 }

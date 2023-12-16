@@ -3,7 +3,7 @@ using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
 using Ticket.Application.Commands.TicketPlus.CreateReserve;
 using Ticket.Application.Commands.TicketPlus.GenerateCaptcha;
-using Ticket.Application.Common;
+using Ticket.Application.Common.TicketPlus;
 using Ticket.Application.Queries.TicketPlus.GetAccessToken;
 using Ticket.Application.Queries.TicketPlus.GetAreaConfig;
 using Ticket.Application.Queries.TicketPlus.GetCaptchaAnswer;
@@ -40,7 +40,7 @@ public class AutoReserveCommandHandler : IRequestHandler<AutoReserveCommand, Aut
     {
         // 透過 ActivityId 取得S3活動資訊
         var s3ProductInfoQueryDto = _memoryCache.TryGetValue(
-            string.Format(Const.S3ProductInfoCacheKey, request.ActivityId),
+            string.Format(CacheKey.S3ProductInfoCacheKey, request.ActivityId),
             out GetS3ProductInfoDto cachesS3ProductInfoQueryDto)
             ? cachesS3ProductInfoQueryDto
             : await _mediator.Send(new GetS3ProductInfoQuery
@@ -51,7 +51,7 @@ public class AutoReserveCommandHandler : IRequestHandler<AutoReserveCommand, Aut
 
         // 再從結果中的ProductId去取得票券的資訊
         var ticketConfigQueryDto = _memoryCache.TryGetValue(
-            string.Format(Const.ProductConfigCacheKey, request.ActivityId),
+            string.Format(CacheKey.ProductConfigCacheKey, request.ActivityId),
             out GetProductConfigDto cachesTicketConfigQueryDto)
             ? cachesTicketConfigQueryDto
             : await _mediator.Send(new GetProductConfigQuery
@@ -62,7 +62,7 @@ public class AutoReserveCommandHandler : IRequestHandler<AutoReserveCommand, Aut
 
         // 取得票區的資訊
         var areaConfigQueryDto = _memoryCache.TryGetValue(
-            string.Format(Const.AreaConfigCacheKey, request.ActivityId),
+            string.Format(CacheKey.AreaConfigCacheKey, request.ActivityId),
             out GetAreaConfigDto cachesAreaConfigQueryDto)
             ? cachesAreaConfigQueryDto
             : await _mediator.Send(new GetAreaConfigQuery
@@ -73,7 +73,7 @@ public class AutoReserveCommandHandler : IRequestHandler<AutoReserveCommand, Aut
 
         // 取得登入的accessToken
         var accessTokenDto = _memoryCache.TryGetValue(
-            string.Format(Const.UserCacheKey, request.Mobile),
+            string.Format(CacheKey.UserCacheKey, request.Mobile),
             out GetAccessTokenDto cacheAccessTokenDto)
             ? cacheAccessTokenDto
             : await _mediator.Send(new GetAccessTokenQuery()
@@ -103,7 +103,7 @@ public class AutoReserveCommandHandler : IRequestHandler<AutoReserveCommand, Aut
 
                     // 寫入快取
                     _memoryCache.Set(
-                        string.Format(Const.ProductConfigCacheKey, request.ActivityId),
+                        string.Format(CacheKey.ProductConfigCacheKey, request.ActivityId),
                         newTicketConfigQueryDto, TimeSpan.FromHours(1));
 
                     var countMessage = string.Join('\n', newTicketConfigQueryDto.Result.Product.Select(x => $"{x.Id}: {x.Count}"));
@@ -154,7 +154,7 @@ public class AutoReserveCommandHandler : IRequestHandler<AutoReserveCommand, Aut
             if (request.IsCheckCount && isPending is false)
             {
                 if (_memoryCache.TryGetValue(
-                    string.Format(Const.ProductConfigCacheKey, request.ActivityId),
+                    string.Format(CacheKey.ProductConfigCacheKey, request.ActivityId),
                     out var outCacheValue))
                 {
                     var reCacheTicketConfigQueryDto = outCacheValue as GetProductConfigDto;

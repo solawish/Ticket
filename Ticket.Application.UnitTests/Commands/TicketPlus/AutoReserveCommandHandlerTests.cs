@@ -8,6 +8,7 @@ using System.Diagnostics.CodeAnalysis;
 using Ticket.Application.Commands.TicketPlus.AutoReserve;
 using Ticket.Application.Commands.TicketPlus.CreateReserve;
 using Ticket.Application.Commands.TicketPlus.GenerateCaptcha;
+using Ticket.Application.Common.TicketPlus;
 using Ticket.Application.Queries.TicketPlus.GetAccessToken;
 using Ticket.Application.Queries.TicketPlus.GetAreaConfig;
 using Ticket.Application.Queries.TicketPlus.GetCaptchaAnswer;
@@ -596,7 +597,7 @@ public class AutoReserveCommandHandlerTests
             .ReturnsAsync(createReserveDto);
 
         object obj = getProductConfigDto as object;
-        memoryCache.Setup(x => x.TryGetValue(Ticket.Application.Common.Const.ProductConfigCacheKey, out obj))
+        memoryCache.Setup(x => x.TryGetValue(Common.TicketPlus.CacheKey.ProductConfigCacheKey, out obj))
             .Returns(true);
 
         // Act
@@ -681,7 +682,7 @@ public class AutoReserveCommandHandlerTests
             .ReturnsAsync(createReserveDto);
 
         object obj = getProductConfigDto as object;
-        memoryCache.Setup(x => x.TryGetValue(string.Format(Application.Common.Const.ProductConfigCacheKey, request.ActivityId), out obj))
+        memoryCache.Setup(x => x.TryGetValue(string.Format(Common.TicketPlus.CacheKey.ProductConfigCacheKey, request.ActivityId), out obj))
             .Returns(true);
 
         // Act
@@ -766,7 +767,7 @@ public class AutoReserveCommandHandlerTests
             .ReturnsAsync(createReserveDto);
 
         object obj = getProductConfigDto as object;
-        memoryCache.Setup(x => x.TryGetValue(Ticket.Application.Common.Const.ProductConfigCacheKey, out obj))
+        memoryCache.Setup(x => x.TryGetValue(Common.TicketPlus.CacheKey.ProductConfigCacheKey, out obj))
             .Returns(true);
 
         // Act

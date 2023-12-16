@@ -1,15 +1,10 @@
-﻿using Ticket.Domain.Entities.TicketPlus;
+﻿using Ticket.Application.Common.TicketPlus;
+using Ticket.Domain.Entities.TicketPlus;
 
 namespace Ticket.Application.Queries.TicketPlus.GetAreaConfig;
 
-public class GetAreaConfigDto
+public class GetAreaConfigDto : BaseResponse
 {
-    public string ErrCode { get; set; }
-
-    public string ErrMsg { get; set; }
-
-    public string ErrDetail { get; set; }
-
     public AreaConfiResult Result { get; set; } = new AreaConfiResult();
 }
 

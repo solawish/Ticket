@@ -1,8 +1,9 @@
-﻿using Ticket.Domain.Entities.TicketPlus;
+﻿using Ticket.Application.Common.TicketPlus;
+using Ticket.Domain.Entities.TicketPlus;
 
 namespace Ticket.Application.Queries.TicketPlus.GetProductConfig;
 
-public class GetProductConfigDto
+public class GetProductConfigDto : BaseResponse
 {
     //    {
     //    "errCode": "00",
@@ -42,11 +43,6 @@ public class GetProductConfigDto
     //        ]
     //    }
     //}
-    public string ErrCode { get; set; }
-
-    public string ErrMsg { get; set; }
-
-    public string ErrDetail { get; set; }
 
     public Result Result { get; set; } = new Result();
 }

@@ -1,8 +1,9 @@
-﻿using Ticket.Domain.Entities.TicketPlus;
+﻿using Ticket.Application.Common.TicketPlus;
+using Ticket.Domain.Entities.TicketPlus;
 
 namespace Ticket.Application.Commands.TicketPlus.CreateReserve;
 
-public class CreateReserveDto
+public class CreateReserveDto : BaseResponse
 {
     //    {
     //    "errCode": "00",
@@ -28,11 +29,6 @@ public class CreateReserveDto
     //    "hash": "4dc400b4da1345907db1f8da2c18d4c5",
     //    "finalizedSeats": true
     //}
-    public string ErrCode { get; set; }
-
-    public string ErrMsg { get; set; }
-
-    public string ErrDetail { get; set; }
 
     public List<OrderProduct> Products { get; set; }
 
