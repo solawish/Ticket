@@ -1,5 +1,8 @@
 ﻿namespace Ticket.Application.Commands.TicketPlus.GenerateCaptcha;
 
+/// <summary>
+/// 驗證碼結果
+/// </summary>
 public class GenerateCaptchaDto
 {
     //    {
@@ -16,7 +19,14 @@ public class GenerateCaptchaDto
 
     public string ErrDetail { get; set; }
 
+    /// <summary>
+    /// 驗證碼的Key (目前看起來像是遠大的會員ID)
+    /// </summary>
+    /// <example>fetix.1128536736962249</example>
     public string Key { get; set; }
 
+    /// <summary>
+    /// SVG DATA
+    /// </summary>
     public string Data { get; set; }
 }

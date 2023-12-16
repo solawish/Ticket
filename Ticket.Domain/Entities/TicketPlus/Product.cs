@@ -1,5 +1,8 @@
 ﻿namespace Ticket.Domain.Entities.TicketPlus;
 
+/// <summary>
+/// S3的票券資訊
+/// </summary>
 public class Product
 {
     public string SessionId { get; set; }

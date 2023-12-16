@@ -1,5 +1,8 @@
 ﻿namespace Ticket.Domain.Enum.TicketPlus;
 
+/// <summary>
+/// 訂閱票券回傳代碼
+/// </summary>
 public enum ErrorCodeEnum
 {
     Success = 00,

@@ -1,5 +1,8 @@
 ﻿namespace Ticket.Domain.Entities.TicketPlus;
 
+/// <summary>
+/// 訂閱成功的票券
+/// </summary>
 public class OrderProduct
 {
     //{

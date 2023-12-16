@@ -1,7 +1,7 @@
 ﻿namespace Ticket.Domain.Enum.TicketPlus;
 
 /// <summary>
-/// Represents the status of an order.
+/// 訂閱票券狀態
 /// </summary>
 public enum OrderStatusEnum
 {

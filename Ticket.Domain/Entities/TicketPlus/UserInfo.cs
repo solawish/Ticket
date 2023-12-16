@@ -1,5 +1,8 @@
 ﻿namespace Ticket.Domain.Entities.TicketPlus;
 
+/// <summary>
+/// 使用者資訊
+/// </summary>
 public class UserInfo
 {
     public string Id { get; set; }

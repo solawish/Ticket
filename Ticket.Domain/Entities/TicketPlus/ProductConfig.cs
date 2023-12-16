@@ -1,5 +1,8 @@
 ﻿namespace Ticket.Domain.Entities.TicketPlus;
 
+/// <summary>
+/// 票券設定
+/// </summary>
 public class ProductConfig
 {
     //{

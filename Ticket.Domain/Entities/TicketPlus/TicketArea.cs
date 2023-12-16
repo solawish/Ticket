@@ -1,5 +1,8 @@
 ﻿namespace Ticket.Domain.Entities.TicketPlus;
 
+/// <summary>
+/// 票區設定
+/// </summary>
 public class TicketArea
 {
     //    {
