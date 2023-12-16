@@ -10,5 +10,5 @@ public class GetAreaConfigDto : BaseResponse
 
 public class AreaConfiResult
 {
-    public List<TicketArea> TicketArea { get; set; } = new List<TicketArea>();
+    public List<TicketAreaConfig> TicketArea { get; set; } = new List<TicketAreaConfig>();
 }

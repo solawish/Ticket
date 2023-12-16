@@ -122,7 +122,7 @@ public class AutoReserveCommandHandlerTests
             .Build<GetProductConfigDto>()
             .Create();
         var tiackeArea = fixture
-            .Build<TicketArea>()
+            .Build<TicketAreaConfig>()
             .WithValues(x => x.TicketAreaName, fixture.Create<string>(), expectedAreaName, fixture.Create<string>())
             .WithValues(x => x.Id, product.Select(x => x.TicketAreaId).ToArray())
             .CreateMany(3);
@@ -209,7 +209,7 @@ public class AutoReserveCommandHandlerTests
             .Build<GetProductConfigDto>()
             .Create();
         var tiackeArea = fixture
-            .Build<TicketArea>()
+            .Build<TicketAreaConfig>()
             .WithValues(x => x.TicketAreaName, fixture.Create<string>(), specificAreaName, fixture.Create<string>())
             .WithValues(x => x.Id, product.Select(x => x.TicketAreaId).ToArray())
             .CreateMany(3);
@@ -296,7 +296,7 @@ public class AutoReserveCommandHandlerTests
             .Build<GetProductConfigDto>()
             .Create();
         var tiackeArea = fixture
-            .Build<TicketArea>()
+            .Build<TicketAreaConfig>()
             //.WithValues(x => x.TicketAreaName, fixture.Create<string>(), expectedAreaName, fixture.Create<string>())
             //.WithValues(x => x.Id, product.Select(x => x.TicketAreaId).ToArray())
             .CreateMany(3);
@@ -383,7 +383,7 @@ public class AutoReserveCommandHandlerTests
             .Build<GetProductConfigDto>()
             .Create();
         var tiackeArea = fixture
-            .Build<TicketArea>()
+            .Build<TicketAreaConfig>()
             //.WithValues(x => x.TicketAreaName, fixture.Create<string>(), expectedAreaName, fixture.Create<string>())
             //.WithValues(x => x.Id, product.Select(x => x.TicketAreaId).ToArray())
             .CreateMany(3);
@@ -471,7 +471,7 @@ public class AutoReserveCommandHandlerTests
             .Build<GetProductConfigDto>()
             .Create();
         var tiackeArea = fixture
-            .Build<TicketArea>()
+            .Build<TicketAreaConfig>()
             .WithValues(x => x.TicketAreaName, fixture.Create<string>(), specificAreaName, fixture.Create<string>())
             .WithValues(x => x.Id, product.Select(x => x.TicketAreaId).ToArray())
             .CreateMany(3);

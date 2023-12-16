@@ -35,7 +35,9 @@ https://ticketplus.com.tw/
 
 實際訂票的API
 
-# 執行環境
+# 執行方法
+
+將專案 pull 後直接 run 就可以執行，電腦環境需具備.net 7以上的sdk & runtime。
 
 僅測試過windows平台可使用，但理論上linux / docker 環境都能正常運行。
 

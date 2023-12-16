@@ -3,7 +3,7 @@
 /// <summary>
 /// 票區設定
 /// </summary>
-public class TicketArea
+public class TicketAreaConfig
 {
     //    {
     //    "saleStart": "2023-12-09T11:00:00+08:00",
