@@ -23,7 +23,7 @@ public class AutoReserveCommandHandler : IRequestHandler<AutoReserveCommand, Aut
     private readonly IMediator _mediator;
     private readonly ILogger<AutoReserveCommandHandler> _logger;
     private readonly IMemoryCache _memoryCache;
-    private readonly int delayTime = 250;
+    private readonly int delayTime = 100;
 
     public AutoReserveCommandHandler(
         IMediator mediator,
@@ -157,7 +157,7 @@ public class AutoReserveCommandHandler : IRequestHandler<AutoReserveCommand, Aut
                     out var outCacheValue))
                 {
                     var reCacheTicketConfigQueryDto = outCacheValue as GetProductConfigDto;
-                    var isSoldOut = (reCacheTicketConfigQueryDto as GetProductConfigDto).Result.Product.First(x => x.Id.Equals(expectProductId)).Count <= 0;
+                    var isSoldOut = reCacheTicketConfigQueryDto.Result.Product.First(x => x.Id.Equals(expectProductId)).Count <= 0;
 
                     // 如果是賣完了就找其他票區
                     if (isSoldOut)
