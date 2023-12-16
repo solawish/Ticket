@@ -116,6 +116,7 @@ public class AutoReserveCommandHandler : IRequestHandler<AutoReserveCommand, Aut
 
         // 是否需要重新產生驗證碼
         var isRegenerateCaptcha = true;
+        var isPending = false;
 
         GenerateCaptchaDto captchaDto = null;
         GetCaptchaAnswerDto captchaCode = null;
@@ -150,7 +151,7 @@ public class AutoReserveCommandHandler : IRequestHandler<AutoReserveCommand, Aut
             }
 
             // 是否要自動避開已售完的票區 因為票區資訊來源為api 避免影響到速度所以只取快取的資料 會有背景task持續取得資料並新增至快取
-            if (request.IsCheckCount)
+            if (request.IsCheckCount && isPending is false)
             {
                 if (_memoryCache.TryGetValue(
                     string.Format(Const.ProductConfigCacheKey, request.ActivityId),
@@ -202,6 +203,7 @@ public class AutoReserveCommandHandler : IRequestHandler<AutoReserveCommand, Aut
             {
                 _logger.LogInformation("這區票賣賣完了");
                 isRegenerateCaptcha = false;
+                isPending = false;
 
                 // 很急就 不要delay
                 await Task.Delay(delayTime, cancellationToken);
@@ -213,6 +215,7 @@ public class AutoReserveCommandHandler : IRequestHandler<AutoReserveCommand, Aut
             {
                 _logger.LogInformation("這票券賣完了");
                 isRegenerateCaptcha = false;
+                isPending = false;
 
                 // 很急就 不要delay
                 await Task.Delay(delayTime, cancellationToken);
@@ -224,6 +227,7 @@ public class AutoReserveCommandHandler : IRequestHandler<AutoReserveCommand, Aut
             {
                 _logger.LogInformation("這場次賣完了");
                 isRegenerateCaptcha = false;
+                isPending = false;
 
                 // 很急就 不要delay
                 await Task.Delay(delayTime, cancellationToken);
@@ -235,6 +239,7 @@ public class AutoReserveCommandHandler : IRequestHandler<AutoReserveCommand, Aut
             {
                 _logger.LogInformation("驗證碼錯誤，重新產生驗證碼");
                 isRegenerateCaptcha = true;
+                isPending = false;
                 continue;
             }
 
@@ -243,6 +248,7 @@ public class AutoReserveCommandHandler : IRequestHandler<AutoReserveCommand, Aut
             {
                 _logger.LogInformation("驗證碼找不到，重新產生驗證碼");
                 isRegenerateCaptcha = true;
+                isPending = false;
                 await Task.Delay(delayTime, cancellationToken);
                 continue;
             }
@@ -252,6 +258,7 @@ public class AutoReserveCommandHandler : IRequestHandler<AutoReserveCommand, Aut
             {
                 _logger.LogInformation("等待結果中");
                 isRegenerateCaptcha = false;
+                isPending = true;
                 await Task.Delay(delayTime, cancellationToken);
                 continue;
             }
@@ -278,6 +285,7 @@ public class AutoReserveCommandHandler : IRequestHandler<AutoReserveCommand, Aut
 
             // 其他不知名的狀況(沒訂到之類的) 就繼續跑 ㄏㄏ
             isRegenerateCaptcha = false;
+            isPending = false;
             _logger.LogInformation("重跑");
             await Task.Delay(delayTime, cancellationToken);
         }
