@@ -1,4 +1,5 @@
 ﻿using ddddocrsharp;
+using MediatR.Extensions.FluentValidation.AspNetCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using System.Reflection;
@@ -12,6 +13,9 @@ public static class DependencyInjection
     public static IServiceCollection AddApplicationServices(this IServiceCollection services, IConfiguration configuration)
     {
         services.AddMediatR(cfg => cfg.RegisterServicesFromAssemblies(Assembly.GetExecutingAssembly()));
+        services.AddFluentValidation(AppDomain.CurrentDomain
+                .GetAssemblies()
+                .Where(x => !x.IsDynamic));
 
         services.AddHttpClient("TicketPlus", client =>
         {

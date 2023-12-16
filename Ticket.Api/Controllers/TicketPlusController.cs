@@ -7,6 +7,7 @@ using Ticket.Application.Commands.TicketPlus.CreateReserve;
 using Ticket.Application.Commands.TicketPlus.GenerateCaptcha;
 using Ticket.Application.Commands.TicketPlus.InitialActivityCache;
 using Ticket.Application.Commands.TicketPlus.InitialUser;
+using Ticket.Application.Commands.TicketPlus.InitialUserCache;
 using Ticket.Application.Queries.TicketPlus.GetAccessToken;
 using Ticket.Application.Queries.TicketPlus.GetAreaConfig;
 using Ticket.Application.Queries.TicketPlus.GetCaptchaAnswer;
@@ -44,6 +45,7 @@ public class TicketPlusController : ControllerBase
     [Route("S3ProductInfo")]
     [ProducesResponseType(typeof(GetS3ProductInfoDto), 200)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [CustomValidator(typeof(GetS3ProductInfoQueryValidator))]
     public async Task<IActionResult> Get([FromQuery] GetS3ProductInfoQuery getProductInfoQuery)
     {
         var result = await _mediator.Send(getProductInfoQuery);
@@ -59,6 +61,7 @@ public class TicketPlusController : ControllerBase
     [Route("ProductConfig")]
     [ProducesResponseType(typeof(GetProductConfigDto), 200)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [CustomValidator(typeof(GetProductConfigQueryValidator))]
     public async Task<IActionResult> Get([FromQuery] GetProductConfigQuery getProductConfigQuery)
     {
         var result = await _mediator.Send(getProductConfigQuery);
@@ -74,6 +77,7 @@ public class TicketPlusController : ControllerBase
     [Route("AreaConfig")]
     [ProducesResponseType(typeof(GetAreaConfigDto), 200)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [CustomValidator(typeof(GetAreaConfigQueryValidator))]
     public async Task<IActionResult> Get([FromQuery] GetAreaConfigQuery getAreaConfigQuery)
     {
         var result = await _mediator.Send(getAreaConfigQuery);
@@ -89,6 +93,7 @@ public class TicketPlusController : ControllerBase
     [Route("AccessToken")]
     [ProducesResponseType(typeof(GetAccessTokenDto), 200)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [CustomValidator(typeof(GetAccessTokenQueryValidator))]
     public async Task<IActionResult> Get([FromQuery] GetAccessTokenQuery getAccessTokenQuery)
     {
         var result = await _mediator.Send(getAccessTokenQuery);
@@ -104,6 +109,7 @@ public class TicketPlusController : ControllerBase
     [Route("Activity/Cache")]
     [ProducesResponseType(typeof(InitialActivityCacheDto), 200)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [CustomValidator(typeof(InitialActivityCacheCommandValidator))]
     public async Task<IActionResult> Post([FromQuery] InitialActivityCacheCommand initialActivityCacheCommand)
     {
         var result = await _mediator.Send(initialActivityCacheCommand);
@@ -119,6 +125,7 @@ public class TicketPlusController : ControllerBase
     [Route("User/Cache")]
     [ProducesResponseType(typeof(InitialUserCacheDto), 200)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [CustomValidator(typeof(InitialUserCacheCommandValidator))]
     public async Task<IActionResult> Get([FromQuery] InitialUserCacheCommand initialUserCommand)
     {
         var result = await _mediator.Send(initialUserCommand);
@@ -134,6 +141,7 @@ public class TicketPlusController : ControllerBase
     [Route("Captcha")]
     [ProducesResponseType(typeof(GenerateCaptchaDto), 200)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [CustomValidator(typeof(GenerateCaptchaCommandValidator))]
     public async Task<IActionResult> Post([FromBody] GenerateCaptchaCommand generateCaptchaCommand)
     {
         var result = await _mediator.Send(generateCaptchaCommand);
@@ -149,6 +157,7 @@ public class TicketPlusController : ControllerBase
     [Route("Captcha/Parsing")]
     [ProducesResponseType(typeof(GetCaptchaAnswerDto), 200)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [CustomValidator(typeof(GetCaptchaAnswerQueryValidator))]
     public async Task<IActionResult> Get([FromBody] GetCaptchaAnswerQuery getCaptchaAnswerQuery)
     {
         var result = await _mediator.Send(getCaptchaAnswerQuery);
