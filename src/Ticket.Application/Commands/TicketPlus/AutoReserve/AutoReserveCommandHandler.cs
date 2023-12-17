@@ -47,7 +47,11 @@ public class AutoReserveCommandHandler : IRequestHandler<AutoReserveCommand, Aut
             {
                 ActivityId = request.ActivityId
             }, cancellationToken);
-        _logger.LogInformation("GetS3ProductInfoQuery: {@s3ProductInfoQueryDto}", s3ProductInfoQueryDto);
+        if (s3ProductInfoQueryDto.Products is null || s3ProductInfoQueryDto.Products.Any() is false)
+        {
+            throw new ArgumentException("找不到活動資訊");
+        }
+        _logger.LogInformation("{GetS3ProductInfoQuery}: {@s3ProductInfoQueryDto}", nameof(GetS3ProductInfoQuery), s3ProductInfoQueryDto);
 
         // 再從結果中的ProductId去取得票券的資訊
         var ticketConfigQueryDto = _memoryCache.TryGetValue(
@@ -58,7 +62,7 @@ public class AutoReserveCommandHandler : IRequestHandler<AutoReserveCommand, Aut
             {
                 ProductId = s3ProductInfoQueryDto.Products.Select(x => x.ProductId)
             }, cancellationToken);
-        _logger.LogInformation("GetProductConfigQuery: {@ticketConfigQueryDto}", ticketConfigQueryDto);
+        _logger.LogInformation("{GetProductConfigQuery}: {@ticketConfigQueryDto}", nameof(GetProductConfigQuery), ticketConfigQueryDto);
 
         // 取得票區的資訊
         var areaConfigQueryDto = _memoryCache.TryGetValue(
@@ -69,7 +73,7 @@ public class AutoReserveCommandHandler : IRequestHandler<AutoReserveCommand, Aut
             {
                 TicketAreaId = s3ProductInfoQueryDto.Products.Where(x => string.IsNullOrEmpty(x.TicketAreaId) is false).Select(x => x.TicketAreaId)
             }, cancellationToken);
-        _logger.LogInformation("GetAreaConfigQuery {@areaConfigQueryDto}", areaConfigQueryDto);
+        _logger.LogInformation("{GetAreaConfigQuery}: {@areaConfigQueryDto}", nameof(GetAreaConfigQuery), areaConfigQueryDto);
 
         // 取得登入的accessToken
         var accessTokenDto = _memoryCache.TryGetValue(
@@ -82,7 +86,11 @@ public class AutoReserveCommandHandler : IRequestHandler<AutoReserveCommand, Aut
                 Mobile = request.Mobile,
                 Password = request.Password
             }, cancellationToken);
-        _logger.LogInformation("GetAccessTokenQuery: {@accessTokenDto}", accessTokenDto);
+        if (accessTokenDto.UserInfo is null)
+        {
+            throw new ArgumentException("登入失敗");
+        }
+        _logger.LogInformation("{GetAccessTokenQuery}: {@accessTokenDto}", nameof(GetAccessTokenQuery), accessTokenDto);
 
         // 有沒有想要的票區
         var expectProductId = string.IsNullOrEmpty(request.AreaName) is false
@@ -106,8 +114,8 @@ public class AutoReserveCommandHandler : IRequestHandler<AutoReserveCommand, Aut
                         string.Format(CacheKey.ProductConfigCacheKey, request.ActivityId),
                         newTicketConfigQueryDto, TimeSpan.FromHours(1));
 
-                    var countMessage = string.Join('\n', newTicketConfigQueryDto.Result.Product.Select(x => $"{x.Id}: {x.Count}"));
-                    _logger.LogInformation("重新取得票區資訊: \n{countMessage}", countMessage);
+                    var countResult = newTicketConfigQueryDto.Result.Product.Select(x => new { x.Id, x.Count });
+                    _logger.LogInformation("重新取得票區資訊: {@countMessage}", countResult);
 
                     await Task.Delay(1000, cancellationToken);
                 }
@@ -140,14 +148,14 @@ public class AutoReserveCommandHandler : IRequestHandler<AutoReserveCommand, Aut
                     SessionId = ticketConfigQueryDto.Result.Product.First().SessionId,
                     Token = accessTokenDto.UserInfo.Access_token
                 }, cancellationToken);
-                _logger.LogInformation("GenerateCaptchaCommand");
+                _logger.LogInformation("{GenerateCaptchaCommand}", nameof(GenerateCaptchaCommand));
 
                 // 計算出驗證碼
                 captchaCode = await _mediator.Send(new GetCaptchaAnswerQuery
                 {
                     Data = captchaDto.Data
                 }, cancellationToken);
-                _logger.LogInformation("GetCaptchaAnswerQuery: {@captchaCode}", captchaCode);
+                _logger.LogInformation("{GetCaptchaAnswerQuery}: {@captchaCode}", nameof(GetCaptchaAnswerQuery), captchaCode);
             }
 
             // 是否要自動避開已售完的票區 因為票區資訊來源為api 避免影響到速度所以只取快取的資料 會有背景task持續取得資料並新增至快取
@@ -196,98 +204,80 @@ public class AutoReserveCommandHandler : IRequestHandler<AutoReserveCommand, Aut
                 },
                 Token = accessTokenDto.UserInfo.Access_token
             }, cancellationToken);
-            _logger.LogInformation("CreateReserveCommand: {@reserveResultDto}", reserveResultDto);
+            _logger.LogInformation("{CreateReserveCommand}: {@reserveResultDto}", nameof(CreateReserveCommand), reserveResultDto);
 
-            // 如果是賣完了就重來
-            if (reserveResultDto.ErrCode.Equals(((int)ErrorCodeEnum.TicketAreaLimitExceeded).ToString()))
+            if (Enum.TryParse(typeof(ReserveCodeEnum), reserveResultDto.ErrCode, out var reserveCodeEnum) is false)
             {
-                _logger.LogInformation("這區票賣賣完了");
                 isRegenerateCaptcha = false;
                 isPending = false;
-
-                // 很急就 不要delay
+                _logger.LogInformation("未定義的情況，重新跑一次");
                 await Task.Delay(delayTime, cancellationToken);
                 continue;
             }
 
-            // 如果是銷售一空就重來
-            if (reserveResultDto.ErrCode.Equals(((int)ErrorCodeEnum.ProductSoldOut).ToString()))
+            switch (reserveCodeEnum)
             {
-                _logger.LogInformation("這票券賣完了");
-                isRegenerateCaptcha = false;
-                isPending = false;
+                case ReserveCodeEnum.TicketAreaLimitExceeded:
+                    _logger.LogInformation("這區票賣賣完了");
+                    isRegenerateCaptcha = false;
+                    isPending = false;
+                    await Task.Delay(delayTime, cancellationToken);
+                    break;
 
-                // 很急就 不要delay
-                await Task.Delay(delayTime, cancellationToken);
-                continue;
+                case ReserveCodeEnum.ProductSoldOut:
+                    _logger.LogInformation("這票券賣完了");
+                    isRegenerateCaptcha = false;
+                    isPending = false;
+                    await Task.Delay(delayTime, cancellationToken);
+                    break;
+
+                case ReserveCodeEnum.SessionSoldOut:
+                    _logger.LogInformation("這場次賣完了");
+                    isRegenerateCaptcha = false;
+                    isPending = false;
+                    await Task.Delay(delayTime, cancellationToken);
+                    break;
+
+                case ReserveCodeEnum.CaptchaFailed:
+                    _logger.LogInformation("驗證碼錯誤，重新產生驗證碼");
+                    isRegenerateCaptcha = true;
+                    isPending = false;
+                    break;
+
+                case ReserveCodeEnum.CaptchaNotFound:
+                    _logger.LogInformation("驗證碼找不到，重新產生驗證碼");
+                    isRegenerateCaptcha = true;
+                    isPending = false;
+                    await Task.Delay(delayTime, cancellationToken);
+                    break;
+
+                case ReserveCodeEnum.Pending:
+                    _logger.LogInformation("等待結果中");
+                    isRegenerateCaptcha = false;
+                    isPending = true;
+                    await Task.Delay(delayTime, cancellationToken);
+                    break;
+
+                case ReserveCodeEnum.UserLimitExceeded:
+                    _logger.LogInformation("已經有訂單了");
+                    return new AutoReserveDto { CreateReserveDto = reserveResultDto };
+
+                case ReserveCodeEnum.Success when reserveResultDto.Products.First().Status.Equals(OrderStatusEnum.RESERVED.ToString()):
+                    _logger.LogInformation("預約成功");
+                    await _mediator.Publish(new TicketReservedEvent
+                    {
+                        ActivityId = request.ActivityId,
+                        Mobile = request.Mobile
+                    }, cancellationToken);
+                    return new AutoReserveDto { CreateReserveDto = reserveResultDto };
+
+                default:
+                    isRegenerateCaptcha = false;
+                    isPending = false;
+                    _logger.LogInformation("未定義的情況，重新跑一次");
+                    await Task.Delay(delayTime, cancellationToken);
+                    break;
             }
-
-            // 如果是場次賣完了就重來
-            if (reserveResultDto.ErrCode.Equals(((int)ErrorCodeEnum.SessionSoldOut).ToString()))
-            {
-                _logger.LogInformation("這場次賣完了");
-                isRegenerateCaptcha = false;
-                isPending = false;
-
-                // 很急就 不要delay
-                await Task.Delay(delayTime, cancellationToken);
-                continue;
-            }
-
-            // 如果結果是驗證碼錯誤就要重產驗證碼
-            if (reserveResultDto.ErrCode.Equals(((int)ErrorCodeEnum.CaptchaFailed).ToString()))
-            {
-                _logger.LogInformation("驗證碼錯誤，重新產生驗證碼");
-                isRegenerateCaptcha = true;
-                isPending = false;
-                continue;
-            }
-
-            // 如果是驗證碼找不到就要重產驗證碼 好像是短時間request太高就會發生這個情境
-            if (reserveResultDto.ErrCode.Equals(((int)ErrorCodeEnum.CaptchaNotFound).ToString()))
-            {
-                _logger.LogInformation("驗證碼找不到，重新產生驗證碼");
-                isRegenerateCaptcha = true;
-                isPending = false;
-                await Task.Delay(delayTime, cancellationToken);
-                continue;
-            }
-
-            // 如果是Pending就定期重打API取得結果
-            if (reserveResultDto.ErrCode.Equals(((int)ErrorCodeEnum.Pending).ToString()))
-            {
-                _logger.LogInformation("等待結果中");
-                isRegenerateCaptcha = false;
-                isPending = true;
-                await Task.Delay(delayTime, cancellationToken);
-                continue;
-            }
-
-            // 如果是其他已經有訂單也回傳成功
-            if (reserveResultDto.ErrCode.Equals(((int)ErrorCodeEnum.UserLimitExceeded).ToString()))
-            {
-                _logger.LogInformation("已經有訂單了");
-                return new AutoReserveDto { CreateReserveDto = reserveResultDto };
-            }
-
-            // 如果是成功就回傳成功
-            if (reserveResultDto.ErrCode.Equals(Domain.Common.TicketPlus.Const.SuccessCode) && reserveResultDto.Products.First().Status.Equals(OrderStatusEnum.RESERVED.ToString()))
-            {
-                _logger.LogInformation("預約成功");
-
-                await _mediator.Publish(new TicketReservedEvent
-                {
-                    ActivityId = request.ActivityId,
-                    Mobile = request.Mobile
-                }, cancellationToken);
-                return new AutoReserveDto { CreateReserveDto = reserveResultDto };
-            }
-
-            // 其他不知名的狀況(沒訂到之類的) 就繼續跑 ㄏㄏ
-            isRegenerateCaptcha = false;
-            isPending = false;
-            _logger.LogInformation("重跑");
-            await Task.Delay(delayTime, cancellationToken);
         }
     }
 

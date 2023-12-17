@@ -35,21 +35,33 @@ public class InitialActivityCacheCommandHandler : IRequestHandler<InitialActivit
         {
             ActivityId = request.ActivityId
         }, cancellationToken);
-        _memoryCache.Set(string.Format(CacheKey.S3ProductInfoCacheKey, request.ActivityId), s3ProductInfoQueryDto, TimeSpan.FromHours(1));
+
+        if (s3ProductInfoQueryDto.Products is null || s3ProductInfoQueryDto.Products.Any() is false)
+        {
+            throw new ArgumentException("找不到活動資訊");
+        }
+        using var s3ProductInfoQueryDtoCacheEntry = _memoryCache.CreateEntry(string.Format(CacheKey.S3ProductInfoCacheKey, request.ActivityId));
+        s3ProductInfoQueryDtoCacheEntry.Value = s3ProductInfoQueryDto;
+        s3ProductInfoQueryDtoCacheEntry.AbsoluteExpirationRelativeToNow = TimeSpan.FromHours(1);
 
         // 再從結果中的ProductId去取得票券的資訊
         var ticketConfigQueryDto = await _mediator.Send(new GetProductConfigQuery
         {
             ProductId = s3ProductInfoQueryDto.Products.Select(x => x.ProductId)
         }, cancellationToken);
-        _memoryCache.Set(string.Format(CacheKey.ProductConfigCacheKey, request.ActivityId), ticketConfigQueryDto, TimeSpan.FromHours(1));
+        using var ticketConfigQueryDtoCacheEntry = _memoryCache.CreateEntry(string.Format(CacheKey.ProductConfigCacheKey, request.ActivityId));
+        ticketConfigQueryDtoCacheEntry.Value = ticketConfigQueryDto;
+        ticketConfigQueryDtoCacheEntry.AbsoluteExpirationRelativeToNow = TimeSpan.FromHours(1);
 
         // 取得票區的資訊
         var areaConfigQueryDto = await _mediator.Send(new GetAreaConfigQuery
         {
             TicketAreaId = s3ProductInfoQueryDto.Products.Select(x => x.TicketAreaId)
         }, cancellationToken);
-        _memoryCache.Set(string.Format(CacheKey.AreaConfigCacheKey, request.ActivityId), areaConfigQueryDto, TimeSpan.FromHours(1));
+        //_memoryCache.Set(string.Format(CacheKey.AreaConfigCacheKey, request.ActivityId), areaConfigQueryDto, TimeSpan.FromHours(1));
+        using var areaConfigQueryDtoCacheEntry = _memoryCache.CreateEntry(string.Format(CacheKey.AreaConfigCacheKey, request.ActivityId));
+        areaConfigQueryDtoCacheEntry.Value = areaConfigQueryDto;
+        areaConfigQueryDtoCacheEntry.AbsoluteExpirationRelativeToNow = TimeSpan.FromHours(1);
 
         return new InitialActivityCacheDto();
     }

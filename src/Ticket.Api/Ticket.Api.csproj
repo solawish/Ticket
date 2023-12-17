@@ -18,6 +18,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Folder Include="Infrastructure\Middleware\" />
     <Folder Include="Infrastructure\SwaggerConfigs\" />
   </ItemGroup>
 
