@@ -31,7 +31,15 @@ public class InitialUserCacheCommandHandler : IRequestHandler<InitialUserCacheCo
             Password = request.Password
         }, cancellationToken);
 
-        _memoryCache.Set(string.Format(CacheKey.UserCacheKey, request.Mobile), accessTokenDto, TimeSpan.FromHours(1));
+        if (accessTokenDto is null || accessTokenDto.UserInfo is null)
+        {
+            throw new ArgumentException("登入失敗");
+        }
+
+        using var cacheEntry = _memoryCache.CreateEntry(string.Format(CacheKey.UserCacheKey, request.Mobile));
+        cacheEntry.Value = accessTokenDto;
+        cacheEntry.AbsoluteExpirationRelativeToNow = TimeSpan.FromHours(1);
+
         return new InitialUserCacheDto();
     }
 }

@@ -1451,7 +1451,7 @@ public class AutoReserveCommandHandlerTests
             .Create();
         var accessTokenDto = fixture
             .Build<GetAccessTokenDto>()
-            .With(x => x.UserInfo, (UserInfo)null)
+            .Without(x => x.UserInfo)
             .Create();
 
         mediator.Setup(x => x.Send(It.IsAny<GetS3ProductInfoQuery>(), It.IsAny<CancellationToken>()))
