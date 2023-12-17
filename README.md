@@ -53,11 +53,11 @@
 
 ## 需求分析
 
-### 從API觀察，需要完成售票流程的資訊會有：
+### 從API觀察，完成售票流程需要的資訊會有：
 
 1. Product: 主要的票券資訊，包含 productId(票券Id), ticketAreaId(區域Id), name(票種名稱 Ex. VIP票, 一般票)。來自於 https://apis.ticketplus.com.tw/config/api/v1/getS3?path=event/54fdee72c71c18cc2b694801e11e77cd/products.json ，54fdee72c71c18cc2b694801e11e77cd 為 場次ID(ActivityId)。
 
-2. ProductConfig: 票券與相關設定，只要是要其中的 sessionId，用於驗證碼的取得與訂票。來自於 https://apis.ticketplus.com.tw/config/api/v1/get?productId=p000002989 ，p000002989 為 票券Id(productId)。
+2. ProductConfig: 票券與相關設定，主要是要其中的 sessionId，用於驗證碼的取得與預約票券。來自於 https://apis.ticketplus.com.tw/config/api/v1/get?productId=p000002989 ，p000002989 為 票券Id(productId)。
 
 3. TicketAreaConfig: 票區相關設定，像是 2F座席F區 這種名稱的資訊會在裡面。不一定每個場次都會有，有些會使用name(票種名稱)來簡單使用，就不會有票區資訊。來自於 https://apis.ticketplus.com.tw/config/api/v1/get?ticketAreaId=a000000887 ，a000000887 為 票區Id(ticketAreaId)
 
@@ -73,17 +73,27 @@
 
 2. Captcha的邏輯推估有點像token桶，只有在開賣期間才能把這次Captcha的答案放進去，並在預約票券的時候進行比對，還沒開賣期間不會放進去，所以藉由Captcha比對失敗來限制購買。同時，只要沒有成功的進入預約票券的Queue，Captcha的答案是不會變的。
 
+3. 密碼是用MD5加密。
+
+
+
 ### 預約自動化邏輯
 
 綜合以上資訊，只要透過場次Id(ActivityId)與會員手機與密碼，就可以透過API取得其他相關資訊完成訂票。
 
 ## 程式設計架構
 
+採用DDD設計，結合MediatR與CQRS的架構。
+
+使用 FluentValidation 進行參數的驗證。
+
+使用xUnit撰寫單元測試。
 
 
 # 學術研究聲明
 
-本專案僅用於學術研究，請支持手動搶票，等待的過程與忐忑的心也是搶票的醍醐味，困難的道路才有豐碩的果實。
+本專案僅用於學術研究。  
+請支持手動搶票，等待的過程與忐忑的心也是搶票的醍醐味，困難的道路才有豐碩的果實。
 
 ![要享受這個過程](./img/1658228256824.gif)
 
