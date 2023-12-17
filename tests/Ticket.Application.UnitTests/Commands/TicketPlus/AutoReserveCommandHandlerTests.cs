@@ -87,7 +87,7 @@ public class AutoReserveCommandHandlerTests
 
         // Assert
         result.ShouldNotBeNull();
-        result.CreateReserveDto.ErrCode.ShouldBe(Const.SuccessCode);
+        Enum.Parse(typeof(ReserveCodeEnum), result.CreateReserveDto.ErrCode).ShouldBe(ReserveCodeEnum.Success);
         result.CreateReserveDto.Products.ShouldNotBeNull();
         result.CreateReserveDto.Products.Count.ShouldBe(1);
         result.CreateReserveDto.Products.First().Status.ShouldBe(OrderStatusEnum.RESERVED.ToString());
@@ -168,7 +168,7 @@ public class AutoReserveCommandHandlerTests
 
         // Assert
         result.ShouldNotBeNull();
-        result.CreateReserveDto.ErrCode.ShouldBe(Const.SuccessCode);
+        Enum.Parse(typeof(ReserveCodeEnum), result.CreateReserveDto.ErrCode).ShouldBe(ReserveCodeEnum.Success);
         result.CreateReserveDto.Products.ShouldNotBeNull();
         result.CreateReserveDto.Products.Count.ShouldBe(1);
         result.CreateReserveDto.Products.First().Status.ShouldBe(OrderStatusEnum.RESERVED.ToString());
@@ -255,7 +255,7 @@ public class AutoReserveCommandHandlerTests
 
         // Assert
         result.ShouldNotBeNull();
-        result.CreateReserveDto.ErrCode.ShouldBe(Const.SuccessCode);
+        Enum.Parse(typeof(ReserveCodeEnum), result.CreateReserveDto.ErrCode).ShouldBe(ReserveCodeEnum.Success);
         result.CreateReserveDto.Products.ShouldNotBeNull();
         result.CreateReserveDto.Products.Count.ShouldBe(1);
         result.CreateReserveDto.Products.First().Status.ShouldBe(OrderStatusEnum.RESERVED.ToString());
@@ -296,8 +296,6 @@ public class AutoReserveCommandHandlerTests
             .Create();
         var tiackeArea = fixture
             .Build<TicketAreaConfig>()
-            //.WithValues(x => x.TicketAreaName, fixture.Create<string>(), expectedAreaName, fixture.Create<string>())
-            //.WithValues(x => x.Id, product.Select(x => x.TicketAreaId).ToArray())
             .CreateMany(3);
         var getAreaConfigDto = fixture
             .Build<GetAreaConfigDto>()
@@ -342,7 +340,7 @@ public class AutoReserveCommandHandlerTests
 
         // Assert
         result.ShouldNotBeNull();
-        result.CreateReserveDto.ErrCode.ShouldBe(Const.SuccessCode);
+        Enum.Parse(typeof(ReserveCodeEnum), result.CreateReserveDto.ErrCode).ShouldBe(ReserveCodeEnum.Success);
         result.CreateReserveDto.Products.ShouldNotBeNull();
         result.CreateReserveDto.Products.Count.ShouldBe(1);
         result.CreateReserveDto.Products.First().Status.ShouldBe(OrderStatusEnum.RESERVED.ToString());
@@ -383,8 +381,6 @@ public class AutoReserveCommandHandlerTests
             .Create();
         var tiackeArea = fixture
             .Build<TicketAreaConfig>()
-            //.WithValues(x => x.TicketAreaName, fixture.Create<string>(), expectedAreaName, fixture.Create<string>())
-            //.WithValues(x => x.Id, product.Select(x => x.TicketAreaId).ToArray())
             .CreateMany(3);
         var getAreaConfigDto = fixture
             .Build<GetAreaConfigDto>()
@@ -429,7 +425,7 @@ public class AutoReserveCommandHandlerTests
 
         // Assert
         result.ShouldNotBeNull();
-        result.CreateReserveDto.ErrCode.ShouldBe(Const.SuccessCode);
+        Enum.Parse(typeof(ReserveCodeEnum), result.CreateReserveDto.ErrCode).ShouldBe(ReserveCodeEnum.Success);
         result.CreateReserveDto.Products.ShouldNotBeNull();
         result.CreateReserveDto.Products.Count.ShouldBe(1);
         result.CreateReserveDto.Products.First().Status.ShouldBe(OrderStatusEnum.RESERVED.ToString());
@@ -517,7 +513,7 @@ public class AutoReserveCommandHandlerTests
 
         // Assert
         result.ShouldNotBeNull();
-        result.CreateReserveDto.ErrCode.ShouldBe(Const.SuccessCode);
+        Enum.Parse(typeof(ReserveCodeEnum), result.CreateReserveDto.ErrCode).ShouldBe(ReserveCodeEnum.Success);
         result.CreateReserveDto.Products.ShouldNotBeNull();
         result.CreateReserveDto.Products.Count.ShouldBe(1);
         result.CreateReserveDto.Products.First().Status.ShouldBe(OrderStatusEnum.RESERVED.ToString());
@@ -604,7 +600,7 @@ public class AutoReserveCommandHandlerTests
 
         // Assert
         result.ShouldNotBeNull();
-        result.CreateReserveDto.ErrCode.ShouldBe(Const.SuccessCode);
+        Enum.Parse(typeof(ReserveCodeEnum), result.CreateReserveDto.ErrCode).ShouldBe(ReserveCodeEnum.Success);
         result.CreateReserveDto.Products.ShouldNotBeNull();
         result.CreateReserveDto.Products.Count.ShouldBe(1);
         result.CreateReserveDto.Products.First().Status.ShouldBe(OrderStatusEnum.RESERVED.ToString());
@@ -689,7 +685,7 @@ public class AutoReserveCommandHandlerTests
 
         // Assert
         result.ShouldNotBeNull();
-        result.CreateReserveDto.ErrCode.ShouldBe(Const.SuccessCode);
+        Enum.Parse(typeof(ReserveCodeEnum), result.CreateReserveDto.ErrCode).ShouldBe(ReserveCodeEnum.Success);
         result.CreateReserveDto.Products.ShouldNotBeNull();
         result.CreateReserveDto.Products.Count.ShouldBe(1);
         result.CreateReserveDto.Products.First().Status.ShouldBe(OrderStatusEnum.RESERVED.ToString());
@@ -774,7 +770,7 @@ public class AutoReserveCommandHandlerTests
 
         // Assert
         result.ShouldNotBeNull();
-        result.CreateReserveDto.ErrCode.ShouldBe(Const.SuccessCode);
+        Enum.Parse(typeof(ReserveCodeEnum), result.CreateReserveDto.ErrCode).ShouldBe(ReserveCodeEnum.Success);
         result.CreateReserveDto.Products.ShouldNotBeNull();
         result.CreateReserveDto.Products.Count.ShouldBe(1);
         result.CreateReserveDto.Products.First().Status.ShouldBe(OrderStatusEnum.RESERVED.ToString());
@@ -850,7 +846,7 @@ public class AutoReserveCommandHandlerTests
 
         // Assert
         result.ShouldNotBeNull();
-        result.CreateReserveDto.ErrCode.ShouldBe(Const.SuccessCode);
+        Enum.Parse(typeof(ReserveCodeEnum), result.CreateReserveDto.ErrCode).ShouldBe(ReserveCodeEnum.Success);
         result.CreateReserveDto.Products.ShouldNotBeNull();
         result.CreateReserveDto.Products.Count.ShouldBe(1);
         result.CreateReserveDto.Products.First().Status.ShouldBe(OrderStatusEnum.RESERVED.ToString());
@@ -909,14 +905,9 @@ public class AutoReserveCommandHandlerTests
             .Create();
 
         mediator.Setup(x => x.Send(It.IsAny<GetS3ProductInfoQuery>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(getS3ProductInfoDto)
-            .Verifiable();
+            .ReturnsAsync(getS3ProductInfoDto);
         mediator.Setup(x => x.Send(It.IsAny<GetProductConfigQuery>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(getProductConfigDto)
-            .Verifiable();
-        mediator.Setup(x => x.Send(It.IsAny<GetAreaConfigQuery>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(getAreaConfigDto)
-            .Verifiable();
+            .ReturnsAsync(getProductConfigDto);
         mediator.Setup(x => x.Send(It.IsAny<GetAreaConfigQuery>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(getAreaConfigDto);
         mediator.Setup(x => x.Send(It.IsAny<GetAccessTokenQuery>(), It.IsAny<CancellationToken>()))
@@ -934,7 +925,7 @@ public class AutoReserveCommandHandlerTests
 
         // Assert
         result.ShouldNotBeNull();
-        result.CreateReserveDto.ErrCode.ShouldBe(Const.SuccessCode);
+        Enum.Parse(typeof(ReserveCodeEnum), result.CreateReserveDto.ErrCode).ShouldBe(ReserveCodeEnum.Success);
         result.CreateReserveDto.Products.ShouldNotBeNull();
         result.CreateReserveDto.Products.Count.ShouldBe(1);
         result.CreateReserveDto.Products.First().Status.ShouldBe(OrderStatusEnum.RESERVED.ToString());
@@ -993,14 +984,9 @@ public class AutoReserveCommandHandlerTests
             .Create();
 
         mediator.Setup(x => x.Send(It.IsAny<GetS3ProductInfoQuery>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(getS3ProductInfoDto)
-            .Verifiable();
+            .ReturnsAsync(getS3ProductInfoDto);
         mediator.Setup(x => x.Send(It.IsAny<GetProductConfigQuery>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(getProductConfigDto)
-            .Verifiable();
-        mediator.Setup(x => x.Send(It.IsAny<GetAreaConfigQuery>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(getAreaConfigDto)
-            .Verifiable();
+            .ReturnsAsync(getProductConfigDto);
         mediator.Setup(x => x.Send(It.IsAny<GetAreaConfigQuery>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(getAreaConfigDto);
         mediator.Setup(x => x.Send(It.IsAny<GetAccessTokenQuery>(), It.IsAny<CancellationToken>()))
@@ -1018,7 +1004,7 @@ public class AutoReserveCommandHandlerTests
 
         // Assert
         result.ShouldNotBeNull();
-        result.CreateReserveDto.ErrCode.ShouldBe(Const.SuccessCode);
+        Enum.Parse(typeof(ReserveCodeEnum), result.CreateReserveDto.ErrCode).ShouldBe(ReserveCodeEnum.Success);
         result.CreateReserveDto.Products.ShouldNotBeNull();
         result.CreateReserveDto.Products.Count.ShouldBe(1);
         result.CreateReserveDto.Products.First().Status.ShouldBe(OrderStatusEnum.RESERVED.ToString());
@@ -1077,14 +1063,9 @@ public class AutoReserveCommandHandlerTests
             .Create();
 
         mediator.Setup(x => x.Send(It.IsAny<GetS3ProductInfoQuery>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(getS3ProductInfoDto)
-            .Verifiable();
+            .ReturnsAsync(getS3ProductInfoDto);
         mediator.Setup(x => x.Send(It.IsAny<GetProductConfigQuery>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(getProductConfigDto)
-            .Verifiable();
-        mediator.Setup(x => x.Send(It.IsAny<GetAreaConfigQuery>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(getAreaConfigDto)
-            .Verifiable();
+            .ReturnsAsync(getProductConfigDto);
         mediator.Setup(x => x.Send(It.IsAny<GetAreaConfigQuery>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(getAreaConfigDto);
         mediator.Setup(x => x.Send(It.IsAny<GetAccessTokenQuery>(), It.IsAny<CancellationToken>()))
@@ -1102,7 +1083,7 @@ public class AutoReserveCommandHandlerTests
 
         // Assert
         result.ShouldNotBeNull();
-        result.CreateReserveDto.ErrCode.ShouldBe(Const.SuccessCode);
+        Enum.Parse(typeof(ReserveCodeEnum), result.CreateReserveDto.ErrCode).ShouldBe(ReserveCodeEnum.Success);
         result.CreateReserveDto.Products.ShouldNotBeNull();
         result.CreateReserveDto.Products.Count.ShouldBe(1);
         result.CreateReserveDto.Products.First().Status.ShouldBe(OrderStatusEnum.RESERVED.ToString());
@@ -1162,14 +1143,9 @@ public class AutoReserveCommandHandlerTests
             .Create();
 
         mediator.Setup(x => x.Send(It.IsAny<GetS3ProductInfoQuery>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(getS3ProductInfoDto)
-            .Verifiable();
+            .ReturnsAsync(getS3ProductInfoDto);
         mediator.Setup(x => x.Send(It.IsAny<GetProductConfigQuery>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(getProductConfigDto)
-            .Verifiable();
-        mediator.Setup(x => x.Send(It.IsAny<GetAreaConfigQuery>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(getAreaConfigDto)
-            .Verifiable();
+            .ReturnsAsync(getProductConfigDto);
         mediator.Setup(x => x.Send(It.IsAny<GetAreaConfigQuery>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(getAreaConfigDto);
         mediator.Setup(x => x.Send(It.IsAny<GetAccessTokenQuery>(), It.IsAny<CancellationToken>()))
@@ -1187,7 +1163,7 @@ public class AutoReserveCommandHandlerTests
 
         // Assert
         result.ShouldNotBeNull();
-        result.CreateReserveDto.ErrCode.ShouldBe(Const.SuccessCode);
+        Enum.Parse(typeof(ReserveCodeEnum), result.CreateReserveDto.ErrCode).ShouldBe(ReserveCodeEnum.Success);
         result.CreateReserveDto.Products.ShouldNotBeNull();
         result.CreateReserveDto.Products.Count.ShouldBe(1);
         result.CreateReserveDto.Products.First().Status.ShouldBe(OrderStatusEnum.RESERVED.ToString());
@@ -1247,14 +1223,9 @@ public class AutoReserveCommandHandlerTests
             .Create();
 
         mediator.Setup(x => x.Send(It.IsAny<GetS3ProductInfoQuery>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(getS3ProductInfoDto)
-            .Verifiable();
+            .ReturnsAsync(getS3ProductInfoDto);
         mediator.Setup(x => x.Send(It.IsAny<GetProductConfigQuery>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(getProductConfigDto)
-            .Verifiable();
-        mediator.Setup(x => x.Send(It.IsAny<GetAreaConfigQuery>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(getAreaConfigDto)
-            .Verifiable();
+            .ReturnsAsync(getProductConfigDto);
         mediator.Setup(x => x.Send(It.IsAny<GetAreaConfigQuery>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(getAreaConfigDto);
         mediator.Setup(x => x.Send(It.IsAny<GetAccessTokenQuery>(), It.IsAny<CancellationToken>()))
@@ -1272,7 +1243,7 @@ public class AutoReserveCommandHandlerTests
 
         // Assert
         result.ShouldNotBeNull();
-        result.CreateReserveDto.ErrCode.ShouldBe(Const.SuccessCode);
+        Enum.Parse(typeof(ReserveCodeEnum), result.CreateReserveDto.ErrCode).ShouldBe(ReserveCodeEnum.Success);
         result.CreateReserveDto.Products.ShouldNotBeNull();
         result.CreateReserveDto.Products.Count.ShouldBe(1);
         result.CreateReserveDto.Products.First().Status.ShouldBe(OrderStatusEnum.RESERVED.ToString());
@@ -1326,14 +1297,9 @@ public class AutoReserveCommandHandlerTests
             .Create();
 
         mediator.Setup(x => x.Send(It.IsAny<GetS3ProductInfoQuery>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(getS3ProductInfoDto)
-            .Verifiable();
+            .ReturnsAsync(getS3ProductInfoDto);
         mediator.Setup(x => x.Send(It.IsAny<GetProductConfigQuery>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(getProductConfigDto)
-            .Verifiable();
-        mediator.Setup(x => x.Send(It.IsAny<GetAreaConfigQuery>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(getAreaConfigDto)
-            .Verifiable();
+            .ReturnsAsync(getProductConfigDto);
         mediator.Setup(x => x.Send(It.IsAny<GetAreaConfigQuery>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(getAreaConfigDto);
         mediator.Setup(x => x.Send(It.IsAny<GetAccessTokenQuery>(), It.IsAny<CancellationToken>()))
@@ -1350,7 +1316,7 @@ public class AutoReserveCommandHandlerTests
 
         // Assert
         result.ShouldNotBeNull();
-        result.CreateReserveDto.ErrCode.ShouldBe(((int)ReserveCodeEnum.UserLimitExceeded).ToString());
+        Enum.Parse(typeof(ReserveCodeEnum), result.CreateReserveDto.ErrCode).ShouldBe(ReserveCodeEnum.UserLimitExceeded);
         mediator.Verify(x => x.Send(It.IsAny<CreateReserveCommand>(), It.IsAny<CancellationToken>()), Times.Exactly(1));
     }
 
@@ -1405,14 +1371,9 @@ public class AutoReserveCommandHandlerTests
             .Create();
 
         mediator.Setup(x => x.Send(It.IsAny<GetS3ProductInfoQuery>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(getS3ProductInfoDto)
-            .Verifiable();
+            .ReturnsAsync(getS3ProductInfoDto);
         mediator.Setup(x => x.Send(It.IsAny<GetProductConfigQuery>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(getProductConfigDto)
-            .Verifiable();
-        mediator.Setup(x => x.Send(It.IsAny<GetAreaConfigQuery>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(getAreaConfigDto)
-            .Verifiable();
+            .ReturnsAsync(getProductConfigDto);
         mediator.Setup(x => x.Send(It.IsAny<GetAreaConfigQuery>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(getAreaConfigDto);
         mediator.Setup(x => x.Send(It.IsAny<GetAccessTokenQuery>(), It.IsAny<CancellationToken>()))
@@ -1430,10 +1391,83 @@ public class AutoReserveCommandHandlerTests
 
         // Assert
         result.ShouldNotBeNull();
-        result.CreateReserveDto.ErrCode.ShouldBe(Const.SuccessCode);
+        Enum.Parse(typeof(ReserveCodeEnum), result.CreateReserveDto.ErrCode).ShouldBe(ReserveCodeEnum.Success);
         result.CreateReserveDto.Products.ShouldNotBeNull();
         result.CreateReserveDto.Products.Count.ShouldBe(1);
         result.CreateReserveDto.Products.First().Status.ShouldBe(OrderStatusEnum.RESERVED.ToString());
         mediator.Verify(x => x.Send(It.IsAny<CreateReserveCommand>(), It.IsAny<CancellationToken>()), Times.Exactly(2));
+    }
+
+    [Theory]
+    [AutoTestingData]
+    public async Task Handle_AutoReserveCommandHandler_GiveErrorActivityId_GetS3ProductInfoDtoReturnEmptyList_ShouldThrowArgumentException(
+        IFixture fixture,
+        [Frozen] Mock<IMediator> mediator,
+        AutoReserveCommandHandler sut
+        )
+    {
+        // Arrange
+        var request = fixture
+            .Build<AutoReserveCommand>()
+            .Create();
+
+        var getS3ProductInfoDto = fixture
+            .Build<GetS3ProductInfoDto>()
+            .With(x => x.Products, new List<Product>())
+            .Create();
+
+        mediator.Setup(x => x.Send(It.IsAny<GetS3ProductInfoQuery>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(getS3ProductInfoDto);
+
+        // Act
+        var ex = await Should.ThrowAsync<ArgumentException>(() => sut.Handle(request, CancellationToken.None));
+
+        // Assert
+        ex.ShouldNotBeNull();
+        ex.Message.ShouldBe("找不到活動資訊");
+    }
+
+    [Theory]
+    [AutoTestingData]
+    public async Task Handle_AutoReserveCommandHandler_GiveErrorUserInfo_GetAccessTokenDtoReturnNullUserInfo_ShouldThrowArgumentException(
+        IFixture fixture,
+        [Frozen] Mock<IMediator> mediator,
+        AutoReserveCommandHandler sut
+        )
+    {
+        // Arrange
+        var request = fixture
+            .Build<AutoReserveCommand>()
+            .Create();
+
+        var getS3ProductInfoDto = fixture
+           .Build<GetS3ProductInfoDto>()
+           .Create();
+        var getProductConfigDto = fixture
+            .Build<GetProductConfigDto>()
+            .Create();
+        var getAreaConfigDto = fixture
+            .Build<GetAreaConfigDto>()
+            .Create();
+        var accessTokenDto = fixture
+            .Build<GetAccessTokenDto>()
+            .With(x => x.UserInfo, (UserInfo)null)
+            .Create();
+
+        mediator.Setup(x => x.Send(It.IsAny<GetS3ProductInfoQuery>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(getS3ProductInfoDto);
+        mediator.Setup(x => x.Send(It.IsAny<GetProductConfigQuery>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(getProductConfigDto);
+        mediator.Setup(x => x.Send(It.IsAny<GetAreaConfigQuery>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(getAreaConfigDto);
+        mediator.Setup(x => x.Send(It.IsAny<GetAccessTokenQuery>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(accessTokenDto);
+
+        // Act
+        var ex = await Should.ThrowAsync<ArgumentException>(() => sut.Handle(request, CancellationToken.None));
+
+        // Assert
+        ex.ShouldNotBeNull();
+        ex.Message.ShouldBe("登入失敗");
     }
 }

@@ -51,7 +51,7 @@ public class AutoReserveCommandHandler : IRequestHandler<AutoReserveCommand, Aut
         {
             throw new ArgumentException("找不到活動資訊");
         }
-        _logger.LogInformation("GetS3ProductInfoQuery: {@s3ProductInfoQueryDto}", s3ProductInfoQueryDto);
+        _logger.LogInformation("{GetS3ProductInfoQuery}: {@s3ProductInfoQueryDto}", nameof(GetS3ProductInfoQuery), s3ProductInfoQueryDto);
 
         // 再從結果中的ProductId去取得票券的資訊
         var ticketConfigQueryDto = _memoryCache.TryGetValue(
@@ -62,7 +62,7 @@ public class AutoReserveCommandHandler : IRequestHandler<AutoReserveCommand, Aut
             {
                 ProductId = s3ProductInfoQueryDto.Products.Select(x => x.ProductId)
             }, cancellationToken);
-        _logger.LogInformation("GetProductConfigQuery: {@ticketConfigQueryDto}", ticketConfigQueryDto);
+        _logger.LogInformation("{GetProductConfigQuery}: {@ticketConfigQueryDto}", nameof(GetProductConfigQuery), ticketConfigQueryDto);
 
         // 取得票區的資訊
         var areaConfigQueryDto = _memoryCache.TryGetValue(
@@ -73,7 +73,7 @@ public class AutoReserveCommandHandler : IRequestHandler<AutoReserveCommand, Aut
             {
                 TicketAreaId = s3ProductInfoQueryDto.Products.Where(x => string.IsNullOrEmpty(x.TicketAreaId) is false).Select(x => x.TicketAreaId)
             }, cancellationToken);
-        _logger.LogInformation("GetAreaConfigQuery {@areaConfigQueryDto}", areaConfigQueryDto);
+        _logger.LogInformation("{GetAreaConfigQuery}: {@areaConfigQueryDto}", nameof(GetAreaConfigQuery), areaConfigQueryDto);
 
         // 取得登入的accessToken
         var accessTokenDto = _memoryCache.TryGetValue(
@@ -90,7 +90,7 @@ public class AutoReserveCommandHandler : IRequestHandler<AutoReserveCommand, Aut
         {
             throw new ArgumentException("登入失敗");
         }
-        _logger.LogInformation("GetAccessTokenQuery: {@accessTokenDto}", accessTokenDto);
+        _logger.LogInformation("{GetAccessTokenQuery}: {@accessTokenDto}", nameof(GetAccessTokenQuery), accessTokenDto);
 
         // 有沒有想要的票區
         var expectProductId = string.IsNullOrEmpty(request.AreaName) is false
@@ -114,8 +114,8 @@ public class AutoReserveCommandHandler : IRequestHandler<AutoReserveCommand, Aut
                         string.Format(CacheKey.ProductConfigCacheKey, request.ActivityId),
                         newTicketConfigQueryDto, TimeSpan.FromHours(1));
 
-                    var countMessage = string.Join('\n', newTicketConfigQueryDto.Result.Product.Select(x => $"{x.Id}: {x.Count}"));
-                    _logger.LogInformation("重新取得票區資訊: \n{countMessage}", countMessage);
+                    var countResult = newTicketConfigQueryDto.Result.Product.Select(x => new { x.Id, x.Count });
+                    _logger.LogInformation("重新取得票區資訊: {@countMessage}", countResult);
 
                     await Task.Delay(1000, cancellationToken);
                 }
@@ -148,14 +148,14 @@ public class AutoReserveCommandHandler : IRequestHandler<AutoReserveCommand, Aut
                     SessionId = ticketConfigQueryDto.Result.Product.First().SessionId,
                     Token = accessTokenDto.UserInfo.Access_token
                 }, cancellationToken);
-                _logger.LogInformation("GenerateCaptchaCommand");
+                _logger.LogInformation("{GenerateCaptchaCommand}", nameof(GenerateCaptchaCommand));
 
                 // 計算出驗證碼
                 captchaCode = await _mediator.Send(new GetCaptchaAnswerQuery
                 {
                     Data = captchaDto.Data
                 }, cancellationToken);
-                _logger.LogInformation("GetCaptchaAnswerQuery: {@captchaCode}", captchaCode);
+                _logger.LogInformation("{GetCaptchaAnswerQuery}: {@captchaCode}", nameof(GetCaptchaAnswerQuery), captchaCode);
             }
 
             // 是否要自動避開已售完的票區 因為票區資訊來源為api 避免影響到速度所以只取快取的資料 會有背景task持續取得資料並新增至快取
@@ -204,7 +204,7 @@ public class AutoReserveCommandHandler : IRequestHandler<AutoReserveCommand, Aut
                 },
                 Token = accessTokenDto.UserInfo.Access_token
             }, cancellationToken);
-            _logger.LogInformation("CreateReserveCommand: {@reserveResultDto}", reserveResultDto);
+            _logger.LogInformation("{CreateReserveCommand}: {@reserveResultDto}", nameof(CreateReserveCommand), reserveResultDto);
 
             if (Enum.TryParse(typeof(ReserveCodeEnum), reserveResultDto.ErrCode, out var reserveCodeEnum) is false)
             {
