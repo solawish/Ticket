@@ -8,7 +8,6 @@ using System.Diagnostics.CodeAnalysis;
 using Ticket.Application.Commands.TicketPlus.AutoReserve;
 using Ticket.Application.Commands.TicketPlus.CreateReserve;
 using Ticket.Application.Commands.TicketPlus.GenerateCaptcha;
-using Ticket.Application.Common.TicketPlus;
 using Ticket.Application.Queries.TicketPlus.GetAccessToken;
 using Ticket.Application.Queries.TicketPlus.GetAreaConfig;
 using Ticket.Application.Queries.TicketPlus.GetCaptchaAnswer;
