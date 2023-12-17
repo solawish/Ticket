@@ -14,10 +14,14 @@
 
 可以實現自動化訂票流程，相關運行情況請參考log。
 
+---
+
 > PUT /api/v1/ticketplus/user/cache  
 > PUT /api/v1/ticketplus/activity/cache
 
 可事前將場次資訊與使用者資訊儲存(YOASOBI場次有遇到順發流量導致s3資訊與登入api出現異常，但後來基本上沒遇到過)
+
+---
 
 > GET /api/v1/ticketplus/s3productinfo  
 > GET /api/v1/ticketplus/productconfig  
@@ -26,10 +30,14 @@
 
 各種場次，票券，登入相關的API，沒意外不會特別用到
 
+---
+
 > POST /api/v1/ticketplus/captcha  
 > POST /api/v1/ticketplus/captcha/parsing  
 
 取得驗證碼與解析的API
+
+---
 
 > POST /api/v1/ticketplus/reserve  
 
@@ -75,20 +83,17 @@
 
 3. 密碼是用MD5加密。
 
-
-
 ### 預約自動化邏輯
 
 綜合以上資訊，只要透過場次Id(ActivityId)與會員手機與密碼，就可以透過API取得其他相關資訊完成訂票。
 
 ## 程式設計架構
 
-採用DDD設計，結合MediatR與CQRS的架構。
+採用DDD設計，結合MediatR與CQRS的架構，WebAPI作為程式的呼叫點。
 
 使用 FluentValidation 進行參數的驗證。
 
 使用xUnit撰寫單元測試。
-
 
 # 學術研究聲明
 
