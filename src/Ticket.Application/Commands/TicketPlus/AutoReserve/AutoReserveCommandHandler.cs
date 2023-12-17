@@ -47,6 +47,10 @@ public class AutoReserveCommandHandler : IRequestHandler<AutoReserveCommand, Aut
             {
                 ActivityId = request.ActivityId
             }, cancellationToken);
+        if (s3ProductInfoQueryDto.Products is null || s3ProductInfoQueryDto.Products.Any() is false)
+        {
+            throw new ArgumentException("找不到活動資訊");
+        }
         _logger.LogInformation("GetS3ProductInfoQuery: {@s3ProductInfoQueryDto}", s3ProductInfoQueryDto);
 
         // 再從結果中的ProductId去取得票券的資訊
@@ -82,6 +86,10 @@ public class AutoReserveCommandHandler : IRequestHandler<AutoReserveCommand, Aut
                 Mobile = request.Mobile,
                 Password = request.Password
             }, cancellationToken);
+        if (accessTokenDto.UserInfo is null)
+        {
+            throw new ArgumentException("登入失敗");
+        }
         _logger.LogInformation("GetAccessTokenQuery: {@accessTokenDto}", accessTokenDto);
 
         // 有沒有想要的票區
