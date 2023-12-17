@@ -199,7 +199,7 @@ public class AutoReserveCommandHandler : IRequestHandler<AutoReserveCommand, Aut
             _logger.LogInformation("CreateReserveCommand: {@reserveResultDto}", reserveResultDto);
 
             // 如果是賣完了就重來
-            if (reserveResultDto.ErrCode.Equals(((int)ErrorCodeEnum.TicketAreaLimitExceeded).ToString()))
+            if (reserveResultDto.ErrCode.Equals(((int)ReserveCodeEnum.TicketAreaLimitExceeded).ToString()))
             {
                 _logger.LogInformation("這區票賣賣完了");
                 isRegenerateCaptcha = false;
@@ -211,7 +211,7 @@ public class AutoReserveCommandHandler : IRequestHandler<AutoReserveCommand, Aut
             }
 
             // 如果是銷售一空就重來
-            if (reserveResultDto.ErrCode.Equals(((int)ErrorCodeEnum.ProductSoldOut).ToString()))
+            if (reserveResultDto.ErrCode.Equals(((int)ReserveCodeEnum.ProductSoldOut).ToString()))
             {
                 _logger.LogInformation("這票券賣完了");
                 isRegenerateCaptcha = false;
@@ -223,7 +223,7 @@ public class AutoReserveCommandHandler : IRequestHandler<AutoReserveCommand, Aut
             }
 
             // 如果是場次賣完了就重來
-            if (reserveResultDto.ErrCode.Equals(((int)ErrorCodeEnum.SessionSoldOut).ToString()))
+            if (reserveResultDto.ErrCode.Equals(((int)ReserveCodeEnum.SessionSoldOut).ToString()))
             {
                 _logger.LogInformation("這場次賣完了");
                 isRegenerateCaptcha = false;
@@ -235,7 +235,7 @@ public class AutoReserveCommandHandler : IRequestHandler<AutoReserveCommand, Aut
             }
 
             // 如果結果是驗證碼錯誤就要重產驗證碼
-            if (reserveResultDto.ErrCode.Equals(((int)ErrorCodeEnum.CaptchaFailed).ToString()))
+            if (reserveResultDto.ErrCode.Equals(((int)ReserveCodeEnum.CaptchaFailed).ToString()))
             {
                 _logger.LogInformation("驗證碼錯誤，重新產生驗證碼");
                 isRegenerateCaptcha = true;
@@ -244,7 +244,7 @@ public class AutoReserveCommandHandler : IRequestHandler<AutoReserveCommand, Aut
             }
 
             // 如果是驗證碼找不到就要重產驗證碼 好像是短時間request太高就會發生這個情境
-            if (reserveResultDto.ErrCode.Equals(((int)ErrorCodeEnum.CaptchaNotFound).ToString()))
+            if (reserveResultDto.ErrCode.Equals(((int)ReserveCodeEnum.CaptchaNotFound).ToString()))
             {
                 _logger.LogInformation("驗證碼找不到，重新產生驗證碼");
                 isRegenerateCaptcha = true;
@@ -254,7 +254,7 @@ public class AutoReserveCommandHandler : IRequestHandler<AutoReserveCommand, Aut
             }
 
             // 如果是Pending就定期重打API取得結果
-            if (reserveResultDto.ErrCode.Equals(((int)ErrorCodeEnum.Pending).ToString()))
+            if (reserveResultDto.ErrCode.Equals(((int)ReserveCodeEnum.Pending).ToString()))
             {
                 _logger.LogInformation("等待結果中");
                 isRegenerateCaptcha = false;
@@ -264,7 +264,7 @@ public class AutoReserveCommandHandler : IRequestHandler<AutoReserveCommand, Aut
             }
 
             // 如果是其他已經有訂單也回傳成功
-            if (reserveResultDto.ErrCode.Equals(((int)ErrorCodeEnum.UserLimitExceeded).ToString()))
+            if (reserveResultDto.ErrCode.Equals(((int)ReserveCodeEnum.UserLimitExceeded).ToString()))
             {
                 _logger.LogInformation("已經有訂單了");
                 return new AutoReserveDto { CreateReserveDto = reserveResultDto };

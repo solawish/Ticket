@@ -827,7 +827,7 @@ public class AutoReserveCommandHandlerTests
             .Create();
         var ticketAreaLimitExceededReserveDto = fixture
             .Build<CreateReserveDto>()
-            .With(x => x.ErrCode, ((int)ErrorCodeEnum.TicketAreaLimitExceeded).ToString())
+            .With(x => x.ErrCode, ((int)ReserveCodeEnum.TicketAreaLimitExceeded).ToString())
             .Create();
 
         mediator.Setup(x => x.Send(It.IsAny<GetS3ProductInfoQuery>(), It.IsAny<CancellationToken>()))
@@ -893,7 +893,7 @@ public class AutoReserveCommandHandlerTests
             .Create();
         var ProductSoldOutReserveDto = fixture
             .Build<CreateReserveDto>()
-            .With(x => x.ErrCode, ((int)ErrorCodeEnum.ProductSoldOut).ToString())
+            .With(x => x.ErrCode, ((int)ReserveCodeEnum.ProductSoldOut).ToString())
             .Create();
         var reserveProductDto = fixture
             .Build<OrderProduct>()
@@ -906,7 +906,7 @@ public class AutoReserveCommandHandlerTests
             .Create();
         var productSoldOutReserveDto = fixture
             .Build<CreateReserveDto>()
-            .With(x => x.ErrCode, ((int)ErrorCodeEnum.ProductSoldOut).ToString())
+            .With(x => x.ErrCode, ((int)ReserveCodeEnum.ProductSoldOut).ToString())
             .Create();
 
         mediator.Setup(x => x.Send(It.IsAny<GetS3ProductInfoQuery>(), It.IsAny<CancellationToken>()))
@@ -977,7 +977,7 @@ public class AutoReserveCommandHandlerTests
             .Create();
         var ProductSoldOutReserveDto = fixture
             .Build<CreateReserveDto>()
-            .With(x => x.ErrCode, ((int)ErrorCodeEnum.ProductSoldOut).ToString())
+            .With(x => x.ErrCode, ((int)ReserveCodeEnum.ProductSoldOut).ToString())
             .Create();
         var reserveProductDto = fixture
             .Build<OrderProduct>()
@@ -990,7 +990,7 @@ public class AutoReserveCommandHandlerTests
             .Create();
         var sessionSoldOutReserveDto = fixture
             .Build<CreateReserveDto>()
-            .With(x => x.ErrCode, ((int)ErrorCodeEnum.SessionSoldOut).ToString())
+            .With(x => x.ErrCode, ((int)ReserveCodeEnum.SessionSoldOut).ToString())
             .Create();
 
         mediator.Setup(x => x.Send(It.IsAny<GetS3ProductInfoQuery>(), It.IsAny<CancellationToken>()))
@@ -1061,7 +1061,7 @@ public class AutoReserveCommandHandlerTests
             .Create();
         var ProductSoldOutReserveDto = fixture
             .Build<CreateReserveDto>()
-            .With(x => x.ErrCode, ((int)ErrorCodeEnum.ProductSoldOut).ToString())
+            .With(x => x.ErrCode, ((int)ReserveCodeEnum.ProductSoldOut).ToString())
             .Create();
         var reserveProductDto = fixture
             .Build<OrderProduct>()
@@ -1074,7 +1074,7 @@ public class AutoReserveCommandHandlerTests
             .Create();
         var captchaFailedReserveDto = fixture
             .Build<CreateReserveDto>()
-            .With(x => x.ErrCode, ((int)ErrorCodeEnum.CaptchaFailed).ToString())
+            .With(x => x.ErrCode, ((int)ReserveCodeEnum.CaptchaFailed).ToString())
             .Create();
 
         mediator.Setup(x => x.Send(It.IsAny<GetS3ProductInfoQuery>(), It.IsAny<CancellationToken>()))
@@ -1146,7 +1146,7 @@ public class AutoReserveCommandHandlerTests
             .Create();
         var ProductSoldOutReserveDto = fixture
             .Build<CreateReserveDto>()
-            .With(x => x.ErrCode, ((int)ErrorCodeEnum.ProductSoldOut).ToString())
+            .With(x => x.ErrCode, ((int)ReserveCodeEnum.ProductSoldOut).ToString())
             .Create();
         var reserveProductDto = fixture
             .Build<OrderProduct>()
@@ -1159,7 +1159,7 @@ public class AutoReserveCommandHandlerTests
             .Create();
         var captchaNotFoundReserveDto = fixture
             .Build<CreateReserveDto>()
-            .With(x => x.ErrCode, ((int)ErrorCodeEnum.CaptchaNotFound).ToString())
+            .With(x => x.ErrCode, ((int)ReserveCodeEnum.CaptchaNotFound).ToString())
             .Create();
 
         mediator.Setup(x => x.Send(It.IsAny<GetS3ProductInfoQuery>(), It.IsAny<CancellationToken>()))
@@ -1231,7 +1231,7 @@ public class AutoReserveCommandHandlerTests
             .Create();
         var ProductSoldOutReserveDto = fixture
             .Build<CreateReserveDto>()
-            .With(x => x.ErrCode, ((int)ErrorCodeEnum.ProductSoldOut).ToString())
+            .With(x => x.ErrCode, ((int)ReserveCodeEnum.ProductSoldOut).ToString())
             .Create();
         var reserveProductDto = fixture
             .Build<OrderProduct>()
@@ -1244,7 +1244,7 @@ public class AutoReserveCommandHandlerTests
             .Create();
         var pendingReserveDto = fixture
             .Build<CreateReserveDto>()
-            .With(x => x.ErrCode, ((int)ErrorCodeEnum.Pending).ToString())
+            .With(x => x.ErrCode, ((int)ReserveCodeEnum.Pending).ToString())
             .Create();
 
         mediator.Setup(x => x.Send(It.IsAny<GetS3ProductInfoQuery>(), It.IsAny<CancellationToken>()))
@@ -1315,7 +1315,7 @@ public class AutoReserveCommandHandlerTests
             .Create();
         var ProductSoldOutReserveDto = fixture
             .Build<CreateReserveDto>()
-            .With(x => x.ErrCode, ((int)ErrorCodeEnum.ProductSoldOut).ToString())
+            .With(x => x.ErrCode, ((int)ReserveCodeEnum.ProductSoldOut).ToString())
             .Create();
         var reserveProductDto = fixture
             .Build<OrderProduct>()
@@ -1323,7 +1323,7 @@ public class AutoReserveCommandHandlerTests
             .Create();
         var userLimitExceededReserveDto = fixture
             .Build<CreateReserveDto>()
-            .With(x => x.ErrCode, ((int)ErrorCodeEnum.UserLimitExceeded).ToString())
+            .With(x => x.ErrCode, ((int)ReserveCodeEnum.UserLimitExceeded).ToString())
             .Create();
 
         mediator.Setup(x => x.Send(It.IsAny<GetS3ProductInfoQuery>(), It.IsAny<CancellationToken>()))
@@ -1351,7 +1351,7 @@ public class AutoReserveCommandHandlerTests
 
         // Assert
         result.ShouldNotBeNull();
-        result.CreateReserveDto.ErrCode.ShouldBe(((int)ErrorCodeEnum.UserLimitExceeded).ToString());
+        result.CreateReserveDto.ErrCode.ShouldBe(((int)ReserveCodeEnum.UserLimitExceeded).ToString());
         mediator.Verify(x => x.Send(It.IsAny<CreateReserveCommand>(), It.IsAny<CancellationToken>()), Times.Exactly(1));
     }
 
@@ -1390,7 +1390,7 @@ public class AutoReserveCommandHandlerTests
             .Create();
         var ProductSoldOutReserveDto = fixture
             .Build<CreateReserveDto>()
-            .With(x => x.ErrCode, ((int)ErrorCodeEnum.ProductSoldOut).ToString())
+            .With(x => x.ErrCode, ((int)ReserveCodeEnum.ProductSoldOut).ToString())
             .Create();
         var reserveProductDto = fixture
             .Build<OrderProduct>()

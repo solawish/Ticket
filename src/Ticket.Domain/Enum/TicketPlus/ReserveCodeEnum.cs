@@ -3,7 +3,7 @@
 /// <summary>
 /// 訂閱票券回傳代碼
 /// </summary>
-public enum ErrorCodeEnum
+public enum ReserveCodeEnum
 {
     Success = 00,
     UserLimitExceeded = 111,
