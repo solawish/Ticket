@@ -196,4 +196,16 @@ public class TicketPlusController : ControllerBase
         var result = await _mediator.Send(autoReserveCommand, cancellationToken);
         return Ok(result);
     }
+
+    [HttpGet]
+    [Route("object")]
+    [ProducesResponseType(typeof(IAsyncEnumerable<object>), StatusCodes.Status200OK)]
+    public async IAsyncEnumerable<object> GetObject()
+    {
+        for (int i = 0; i < 10; i++)
+        {
+            await Task.Delay(TimeSpan.FromSeconds(1));
+            yield return new { Id = i, Name = Guid.NewGuid().ToString() };
+        }
+    }
 }

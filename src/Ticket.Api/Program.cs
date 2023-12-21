@@ -112,4 +112,6 @@ app.UseExceptionMiddleware();
 var option = new RewriteOptions().AddRedirect("^$", "swagger", (int)HttpStatusCode.Redirect);
 app.UseRewriter(option);
 
+app.UseStaticFiles();
+
 app.Run();
