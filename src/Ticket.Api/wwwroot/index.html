@@ -3,17 +3,58 @@
 <head>
     <meta charset="utf-8" />
     <title></title>
+    <form name="myForm" id="myForm">
+        <p>
+            <label for="first_name">activityId:</label>
+            <input type="text" name="activityId" id="activityId">
+        </p>
+
+        <p>
+            <label for="last_name">mobile:</label>
+            <input type="text" name="mobile" id="mobile">
+        </p>
+
+        <p>
+            <label for="email">countryCode:</label>
+            <input type="text" name="countryCode" id="countryCode">
+        </p>
+        <p>
+            <label for="email">password:</label>
+            <input type="text" name="password" id="password">
+        </p>
+
+        <p>
+            <label for="email">count:</label>
+            <input type="number" name="count" id="count">
+        </p>
+
+        <p>
+            <label for="email">areaName:</label>
+            <input type="text" name="areaName" id="areaName">
+        </p>
+
+        <p>
+            <label for="email">isCheckCount:</label>
+            <input type="checkbox" name="isCheckCount" id="isCheckCount">
+        </p>
+        <input value="Submit" type="submit">
+    </form>
 </head>
 <script>
-    function stream(callback) {
+    function stream(e, callback) {
+        const data = new FormData(e.target);
+        const value = Object.fromEntries(data.entries());
+        const jsondata = JSON.stringify(value);
+        
         const myHeaders = new Headers();
         myHeaders.append('Content-Type', 'application/json');
         const requestOptions = {
-            method: 'GET',
+            method: 'POST',
             headers: myHeaders,
+            body: jsondata,
             redirect: 'follow',
         };
-        fetch('/api/v1/ticketplus/object', requestOptions)
+        fetch('/api/v1/ticketplus/AutoReserveRealtimeResponse', requestOptions)
             .then((response) => {
                 const reader = response.body.getReader();
                 // 處理資料流中的每個資料區塊
@@ -25,7 +66,7 @@
 
                     // 將 Uint8Array 轉成 string，然後交給 callback 函式處理
                     let data = new TextDecoder().decode(value);
-                    callback(tolerantParse(data));
+                    callback(data);
 
                     // 讀取下一段資料區塊
                     return reader.read().then(pump);
@@ -33,16 +74,19 @@
             })
             .catch((error) => console.log('error', error));
     }
-    function tolerantParse(str) {
-        // 移除開頭的逗號和 [ 符號
-        if (str.startsWith(',') || str.startsWith('[')) str = str.slice(1).trim();
-        // 移除結尾的 ] 符號
-        if (str.endsWith(']')) str = str.slice(0, -1);
-        return `[${str}]`;
-    }
-    stream((data) => {
+    function callback(data) {
         console.log(data);
         document.getElementById('response').innerHTML += data + '<br>';
+    }
+    //stream((data) => {
+    //    console.log(data);
+    //    document.getElementById('response').innerHTML += data + '<br>';
+    //});
+
+    var form = document.getElementById('myForm');
+    form.addEventListener('submit', function (e) {
+        e.preventDefault();
+        stream(e, callback);
     });
 </script>
 <body>

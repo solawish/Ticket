@@ -3,6 +3,7 @@ using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Ticket.Api.Infrastructure.Filters;
 using Ticket.Application.Commands.TicketPlus.AutoReserve;
+using Ticket.Application.Commands.TicketPlus.AutoReserveRealtimeResponse;
 using Ticket.Application.Commands.TicketPlus.CreateReserve;
 using Ticket.Application.Commands.TicketPlus.GenerateCaptcha;
 using Ticket.Application.Commands.TicketPlus.InitialActivityCache;
@@ -197,15 +198,22 @@ public class TicketPlusController : ControllerBase
         return Ok(result);
     }
 
-    [HttpGet]
-    [Route("object")]
-    [ProducesResponseType(typeof(IAsyncEnumerable<object>), StatusCodes.Status200OK)]
-    public async IAsyncEnumerable<object> GetObject()
+    /// <summary>
+    /// 自動預約
+    /// </summary>
+    /// <param name="autoReserveCommand"></param>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
+    [HttpPost]
+    [Route("AutoReserveRealtimeResponse")]
+    [ProducesResponseType(typeof(AutoReserveDto), 200)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [CustomValidator(typeof(AutoReserveRealtimeResponseCommandValidator))]
+    public async IAsyncEnumerable<string> Post([FromBody] AutoReserveRealtimeResponseCommand autoReserveCommand)
     {
-        for (int i = 0; i < 10; i++)
+        await foreach (var item in _mediator.CreateStream(autoReserveCommand))
         {
-            await Task.Delay(TimeSpan.FromSeconds(1));
-            yield return new { Id = i, Name = Guid.NewGuid().ToString() };
+            yield return item;
         }
     }
 }
