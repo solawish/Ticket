@@ -38,14 +38,15 @@ public class AutoReserveCommandHandler : IRequestHandler<AutoReserveCommand, Aut
 
     public async Task<AutoReserveDto> Handle(AutoReserveCommand request, CancellationToken cancellationToken)
     {
-        // 透過 ActivityId 取得S3活動資訊
+        // 透過 ActivityId 取得S3特定場次活動資訊
         var s3ProductInfoQueryDto = _memoryCache.TryGetValue(
             string.Format(CacheKey.S3ProductInfoCacheKey, request.ActivityId),
             out GetS3ProductInfoDto cachesS3ProductInfoQueryDto)
             ? cachesS3ProductInfoQueryDto
             : await _mediator.Send(new GetS3ProductInfoQuery
             {
-                ActivityId = request.ActivityId
+                ActivityId = request.ActivityId,
+                SessionId = request.SessionId
             }, cancellationToken);
         if (s3ProductInfoQueryDto.Products is null || s3ProductInfoQueryDto.Products.Any() is false)
         {

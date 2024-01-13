@@ -10,8 +10,14 @@ public class AutoReserveCommand : IRequest<AutoReserveDto>
     /// <summary>
     /// 活動Id
     /// </summary>
-    /// <example>d56972181d6e3c365b859cf9282517e1</example>
+    /// <example>e79352d85215d03eadb7a0618c200c85</example>
     public string ActivityId { get; set; }
+
+    /// <summary>
+    /// Session Id(場次ID)(Ex. 一場巡迴有複數天以上的場次)
+    /// </summary>
+    /// <example>85a3d17d6d0bf0e839e40358f5d4bada</example>
+    public string SessionId { get; set; }
 
     /// <summary>
     /// 登入的手機號碼
