@@ -43,7 +43,7 @@ public class TicketPlusController : ControllerBase
     /// <returns></returns>
     [HttpGet]
     [Route("S3ProductInfo")]
-    [ProducesResponseType(typeof(GetS3ProductInfoDto), 200)]
+    [ProducesResponseType(typeof(GetS3ProductInfoDto), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [CustomValidator(typeof(GetS3ProductInfoQueryValidator))]
     public async Task<IActionResult> Get([FromQuery] GetS3ProductInfoQuery getProductInfoQuery)
@@ -59,7 +59,7 @@ public class TicketPlusController : ControllerBase
     /// <returns></returns>
     [HttpGet]
     [Route("ProductConfig")]
-    [ProducesResponseType(typeof(GetProductConfigDto), 200)]
+    [ProducesResponseType(typeof(GetProductConfigDto), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [CustomValidator(typeof(GetProductConfigQueryValidator))]
     public async Task<IActionResult> Get([FromQuery] GetProductConfigQuery getProductConfigQuery)
@@ -75,7 +75,7 @@ public class TicketPlusController : ControllerBase
     /// <returns></returns>
     [HttpGet]
     [Route("AreaConfig")]
-    [ProducesResponseType(typeof(GetAreaConfigDto), 200)]
+    [ProducesResponseType(typeof(GetAreaConfigDto), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [CustomValidator(typeof(GetAreaConfigQueryValidator))]
     public async Task<IActionResult> Get([FromQuery] GetAreaConfigQuery getAreaConfigQuery)
@@ -91,7 +91,7 @@ public class TicketPlusController : ControllerBase
     /// <returns></returns>
     [HttpGet]
     [Route("AccessToken")]
-    [ProducesResponseType(typeof(GetAccessTokenDto), 200)]
+    [ProducesResponseType(typeof(GetAccessTokenDto), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [CustomValidator(typeof(GetAccessTokenQueryValidator))]
     public async Task<IActionResult> Get([FromQuery] GetAccessTokenQuery getAccessTokenQuery)
@@ -107,7 +107,7 @@ public class TicketPlusController : ControllerBase
     /// <returns></returns>
     [HttpPut]
     [Route("Activity/Cache")]
-    [ProducesResponseType(typeof(InitialActivityCacheDto), 200)]
+    [ProducesResponseType(typeof(InitialActivityCacheDto), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [CustomValidator(typeof(InitialActivityCacheCommandValidator))]
     public async Task<IActionResult> Post([FromQuery] InitialActivityCacheCommand initialActivityCacheCommand)
@@ -123,7 +123,7 @@ public class TicketPlusController : ControllerBase
     /// <returns></returns>
     [HttpPut]
     [Route("User/Cache")]
-    [ProducesResponseType(typeof(InitialUserCacheDto), 200)]
+    [ProducesResponseType(typeof(InitialUserCacheDto), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [CustomValidator(typeof(InitialUserCacheCommandValidator))]
     public async Task<IActionResult> Get([FromQuery] InitialUserCacheCommand initialUserCommand)
@@ -139,7 +139,7 @@ public class TicketPlusController : ControllerBase
     /// <returns></returns>
     [HttpPost]
     [Route("Captcha")]
-    [ProducesResponseType(typeof(GenerateCaptchaDto), 200)]
+    [ProducesResponseType(typeof(GenerateCaptchaDto), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [CustomValidator(typeof(GenerateCaptchaCommandValidator))]
     public async Task<IActionResult> Post([FromBody] GenerateCaptchaCommand generateCaptchaCommand)
@@ -155,7 +155,7 @@ public class TicketPlusController : ControllerBase
     /// <returns></returns>
     [HttpPost]
     [Route("Captcha/Parsing")]
-    [ProducesResponseType(typeof(GetCaptchaAnswerDto), 200)]
+    [ProducesResponseType(typeof(GetCaptchaAnswerDto), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [CustomValidator(typeof(GetCaptchaAnswerQueryValidator))]
     public async Task<IActionResult> Get([FromBody] GetCaptchaAnswerQuery getCaptchaAnswerQuery)
@@ -171,7 +171,7 @@ public class TicketPlusController : ControllerBase
     /// <returns></returns>
     [HttpPost]
     [Route("Reserve")]
-    [ProducesResponseType(typeof(CreateReserveDto), 200)]
+    [ProducesResponseType(typeof(CreateReserveDto), StatusCodes.StatusStatusCodes.Status200OKOK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [CustomValidator(typeof(CreateReserveCommandValidator))]
     public async Task<IActionResult> Post([FromBody] CreateReserveCommand createReserveCommand)
@@ -188,7 +188,7 @@ public class TicketPlusController : ControllerBase
     /// <returns></returns>
     [HttpPost]
     [Route("AutoReserve")]
-    [ProducesResponseType(typeof(CreateAutoReserveDto), 200)]
+    [ProducesResponseType(typeof(CreateAutoReserveDto), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [CustomValidator(typeof(CreateAutoReserveCommandValidator))]
     public async Task<IActionResult> Post([FromBody] CreateAutoReserveCommand autoReserveCommand, CancellationToken cancellationToken)
