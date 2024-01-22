@@ -29,12 +29,12 @@ public class AutoReserveCommandHandlerTests
     public async Task Handle_AutoReserveCommandHandler_GiveValidRequest_WithNoAreaName_WithNoCheckCount_WithNoAnyCache_ReturnReserveSuccess(
         IFixture fixture,
         [Frozen] Mock<IMediator> mediator,
-        AutoReserveCommandHandler sut
+        CreateAutoReserveCommandHandler sut
         )
     {
         // Arrange
         var request = fixture
-            .Build<AutoReserveCommand>()
+            .Build<CreateAutoReserveCommand>()
             .With(x => x.AreaName, "")
             .With(x => x.IsCheckCount, false)
             .Create();
@@ -99,13 +99,13 @@ public class AutoReserveCommandHandlerTests
     public async Task Handle_AutoReserveCommandHandler_GiveValidRequest_WithAreaName_WithNoCheckCount_WithNoAnyCache_HaveCorrespondAreaName_ShouldUseCorrectArea_ReturnReserveSuccess(
         IFixture fixture,
         [Frozen] Mock<IMediator> mediator,
-        AutoReserveCommandHandler sut
+        CreateAutoReserveCommandHandler sut
         )
     {
         // Arrange
         var expectedAreaName = "VIPAreaName";
         var request = fixture
-            .Build<AutoReserveCommand>()
+            .Build<CreateAutoReserveCommand>()
             .With(x => x.AreaName, expectedAreaName)
             .With(x => x.IsCheckCount, false)
             .Create();
@@ -185,14 +185,14 @@ public class AutoReserveCommandHandlerTests
     public async Task Handle_AutoReserveCommandHandler_GiveValidRequest_WithAreaName_WithNoCheckCount_WithNoAnyCache_HaveSimilarAreaName_ShouldUseCorrectArea_ReturnReserveSuccess(
         IFixture fixture,
         [Frozen] Mock<IMediator> mediator,
-        AutoReserveCommandHandler sut
+        CreateAutoReserveCommandHandler sut
         )
     {
         // Arrange
         var specificAreaName = "VIPAreaName";
         var expectedAreaName = "VIP";
         var request = fixture
-            .Build<AutoReserveCommand>()
+            .Build<CreateAutoReserveCommand>()
             .With(x => x.AreaName, expectedAreaName)
             .With(x => x.IsCheckCount, false)
             .Create();
@@ -272,13 +272,13 @@ public class AutoReserveCommandHandlerTests
     public async Task Handle_AutoReserveCommandHandler_GiveValidRequest_WithAreaName_WithNoCheckCount_WithNoAnyCache_NotHaveCorrespondAreaName_HaveCorrespondTicketName_ShouldUseCorrectTicketName_ReturnReserveSuccess(
         IFixture fixture,
         [Frozen] Mock<IMediator> mediator,
-        AutoReserveCommandHandler sut
+        CreateAutoReserveCommandHandler sut
         )
     {
         // Arrange
         var expectedTicketName = "VIPTicketName";
         var request = fixture
-            .Build<AutoReserveCommand>()
+            .Build<CreateAutoReserveCommand>()
             .With(x => x.AreaName, expectedTicketName)
             .With(x => x.IsCheckCount, false)
             .Create();
@@ -356,14 +356,14 @@ public class AutoReserveCommandHandlerTests
     public async Task Handle_AutoReserveCommandHandler_GiveValidRequest_WithAreaName_WithNoCheckCount_WithNoAnyCache_NotHaveCorrespondAreaName_HaveSimilarTicketName_ShouldUseCorrectTicketName_ReturnReserveSuccess(
         IFixture fixture,
         [Frozen] Mock<IMediator> mediator,
-        AutoReserveCommandHandler sut
+        CreateAutoReserveCommandHandler sut
         )
     {
         // Arrange
         var specificTicketName = "VIPTicketNamePlus";
         var expectedTicketName = "VIPTicketName";
         var request = fixture
-            .Build<AutoReserveCommand>()
+            .Build<CreateAutoReserveCommand>()
             .With(x => x.AreaName, expectedTicketName)
             .With(x => x.IsCheckCount, false)
             .Create();
@@ -441,7 +441,7 @@ public class AutoReserveCommandHandlerTests
     public async Task Handle_AutoReserveCommandHandler_GiveValidRequest_WithAreaName_WithNoCheckCount_WithNoAnyCache_NotHaveCorrespondAreaName_NotHaveCorrespondTicketName_ShouleUseFirstProductId_ReturnReserveSuccess(
         IFixture fixture,
         [Frozen] Mock<IMediator> mediator,
-        AutoReserveCommandHandler sut
+        CreateAutoReserveCommandHandler sut
         )
     {
         // Arrange
@@ -449,7 +449,7 @@ public class AutoReserveCommandHandlerTests
         var specificTicketName = "VIPTicketNamePlus";
         var requestAreaName = "NoEqualNameQAQ";
         var request = fixture
-            .Build<AutoReserveCommand>()
+            .Build<CreateAutoReserveCommand>()
             .With(x => x.AreaName, requestAreaName)
             .With(x => x.IsCheckCount, false)
             .Create();
@@ -529,12 +529,12 @@ public class AutoReserveCommandHandlerTests
         IFixture fixture,
         [Frozen] Mock<IMediator> mediator,
         [Frozen] Mock<IMemoryCache> memoryCache,
-        AutoReserveCommandHandler sut
+        CreateAutoReserveCommandHandler sut
         )
     {
         // Arrange
         var request = fixture
-            .Build<AutoReserveCommand>()
+            .Build<CreateAutoReserveCommand>()
             .With(x => x.AreaName, "")
             .With(x => x.IsCheckCount, true)
             .Create();
@@ -614,12 +614,12 @@ public class AutoReserveCommandHandlerTests
         IFixture fixture,
         [Frozen] Mock<IMediator> mediator,
         [Frozen] Mock<IMemoryCache> memoryCache,
-        AutoReserveCommandHandler sut
+        CreateAutoReserveCommandHandler sut
         )
     {
         // Arrange
         var request = fixture
-            .Build<AutoReserveCommand>()
+            .Build<CreateAutoReserveCommand>()
             .With(x => x.AreaName, "")
             .With(x => x.IsCheckCount, true)
             .Create();
@@ -699,12 +699,12 @@ public class AutoReserveCommandHandlerTests
         IFixture fixture,
         [Frozen] Mock<IMediator> mediator,
         [Frozen] Mock<IMemoryCache> memoryCache,
-        AutoReserveCommandHandler sut
+        CreateAutoReserveCommandHandler sut
         )
     {
         // Arrange
         var request = fixture
-            .Build<AutoReserveCommand>()
+            .Build<CreateAutoReserveCommand>()
             .With(x => x.AreaName, "")
             .With(x => x.IsCheckCount, true)
             .Create();
@@ -783,12 +783,12 @@ public class AutoReserveCommandHandlerTests
     public async Task Handle_AutoReserveCommandHandler_GiveValidRequest_IfReserveReturnTicketAreaLimitExceeded_ShouldRetryReserve(
         IFixture fixture,
         [Frozen] Mock<IMediator> mediator,
-        AutoReserveCommandHandler sut
+        CreateAutoReserveCommandHandler sut
         )
     {
         // Arrange
         var request = fixture
-            .Build<AutoReserveCommand>()
+            .Build<CreateAutoReserveCommand>()
             .With(x => x.AreaName, "")
             .With(x => x.IsCheckCount, false)
             .Create();
@@ -858,12 +858,12 @@ public class AutoReserveCommandHandlerTests
     public async Task Handle_AutoReserveCommandHandler_GiveValidRequest_IfReserveReturnProductSoldOut_ShouldRetryReserve(
         IFixture fixture,
         [Frozen] Mock<IMediator> mediator,
-        AutoReserveCommandHandler sut
+        CreateAutoReserveCommandHandler sut
         )
     {
         // Arrange
         var request = fixture
-            .Build<AutoReserveCommand>()
+            .Build<CreateAutoReserveCommand>()
             .With(x => x.AreaName, "")
             .With(x => x.IsCheckCount, false)
             .Create();
@@ -937,12 +937,12 @@ public class AutoReserveCommandHandlerTests
     public async Task Handle_AutoReserveCommandHandler_GiveValidRequest_IfReserveReturnSessionSoldOut_ShouldRetryReserve(
         IFixture fixture,
         [Frozen] Mock<IMediator> mediator,
-        AutoReserveCommandHandler sut
+        CreateAutoReserveCommandHandler sut
         )
     {
         // Arrange
         var request = fixture
-            .Build<AutoReserveCommand>()
+            .Build<CreateAutoReserveCommand>()
             .With(x => x.AreaName, "")
             .With(x => x.IsCheckCount, false)
             .Create();
@@ -1016,12 +1016,12 @@ public class AutoReserveCommandHandlerTests
     public async Task Handle_AutoReserveCommandHandler_GiveValidRequest_IfReserveReturnCaptchaFailed_ShouldReGenerateCaptcha_ShouldRetryReserve(
         IFixture fixture,
         [Frozen] Mock<IMediator> mediator,
-        AutoReserveCommandHandler sut
+        CreateAutoReserveCommandHandler sut
         )
     {
         // Arrange
         var request = fixture
-            .Build<AutoReserveCommand>()
+            .Build<CreateAutoReserveCommand>()
             .With(x => x.AreaName, "")
             .With(x => x.IsCheckCount, false)
             .Create();
@@ -1096,12 +1096,12 @@ public class AutoReserveCommandHandlerTests
     public async Task Handle_AutoReserveCommandHandler_GiveValidRequest_IfReserveReturnCaptchaNotFound_ShouldReGenerateCaptcha_ShouldRetryReserve(
         IFixture fixture,
         [Frozen] Mock<IMediator> mediator,
-        AutoReserveCommandHandler sut
+        CreateAutoReserveCommandHandler sut
         )
     {
         // Arrange
         var request = fixture
-            .Build<AutoReserveCommand>()
+            .Build<CreateAutoReserveCommand>()
             .With(x => x.AreaName, "")
             .With(x => x.IsCheckCount, false)
             .Create();
@@ -1176,12 +1176,12 @@ public class AutoReserveCommandHandlerTests
     public async Task Handle_AutoReserveCommandHandler_GiveValidRequest_IfReserveReturnPending_ShouldRetryReserve(
         IFixture fixture,
         [Frozen] Mock<IMediator> mediator,
-        AutoReserveCommandHandler sut
+        CreateAutoReserveCommandHandler sut
         )
     {
         // Arrange
         var request = fixture
-            .Build<AutoReserveCommand>()
+            .Build<CreateAutoReserveCommand>()
             .With(x => x.AreaName, "")
             .With(x => x.IsCheckCount, false)
             .Create();
@@ -1255,12 +1255,12 @@ public class AutoReserveCommandHandlerTests
     public async Task Handle_AutoReserveCommandHandler_GiveValidRequest_IfReserveReturnUserLimitExceeded_ShouldReturnReserve(
         IFixture fixture,
         [Frozen] Mock<IMediator> mediator,
-        AutoReserveCommandHandler sut
+        CreateAutoReserveCommandHandler sut
         )
     {
         // Arrange
         var request = fixture
-            .Build<AutoReserveCommand>()
+            .Build<CreateAutoReserveCommand>()
             .With(x => x.AreaName, "")
             .With(x => x.IsCheckCount, false)
             .Create();
@@ -1325,12 +1325,12 @@ public class AutoReserveCommandHandlerTests
     public async Task Handle_AutoReserveCommandHandler_GiveValidRequest_IfReserveOtherMessage_ShouldRetryReserve(
         IFixture fixture,
         [Frozen] Mock<IMediator> mediator,
-        AutoReserveCommandHandler sut
+        CreateAutoReserveCommandHandler sut
         )
     {
         // Arrange
         var request = fixture
-            .Build<AutoReserveCommand>()
+            .Build<CreateAutoReserveCommand>()
             .With(x => x.AreaName, "")
             .With(x => x.IsCheckCount, false)
             .Create();
@@ -1403,12 +1403,12 @@ public class AutoReserveCommandHandlerTests
     public async Task Handle_AutoReserveCommandHandler_GiveErrorActivityId_GetS3ProductInfoDtoReturnEmptyList_ShouldThrowArgumentException(
         IFixture fixture,
         [Frozen] Mock<IMediator> mediator,
-        AutoReserveCommandHandler sut
+        CreateAutoReserveCommandHandler sut
         )
     {
         // Arrange
         var request = fixture
-            .Build<AutoReserveCommand>()
+            .Build<CreateAutoReserveCommand>()
             .Create();
 
         var getS3ProductInfoDto = fixture
@@ -1432,12 +1432,12 @@ public class AutoReserveCommandHandlerTests
     public async Task Handle_AutoReserveCommandHandler_GiveErrorUserInfo_GetAccessTokenDtoReturnNullUserInfo_ShouldThrowArgumentException(
         IFixture fixture,
         [Frozen] Mock<IMediator> mediator,
-        AutoReserveCommandHandler sut
+        CreateAutoReserveCommandHandler sut
         )
     {
         // Arrange
         var request = fixture
-            .Build<AutoReserveCommand>()
+            .Build<CreateAutoReserveCommand>()
             .Create();
 
         var getS3ProductInfoDto = fixture

@@ -5,7 +5,7 @@ namespace Ticket.Application.Commands.TicketPlus.AutoReserve;
 /// <summary>
 /// AutoReserveCommand
 /// </summary>
-public class AutoReserveCommand : IRequest<AutoReserveDto>
+public class CreateAutoReserveCommand : IRequest<CreateAutoReserveDto>
 {
     /// <summary>
     /// 活動Id

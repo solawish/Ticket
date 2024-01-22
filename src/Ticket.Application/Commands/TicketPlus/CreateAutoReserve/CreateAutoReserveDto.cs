@@ -2,7 +2,7 @@
 
 namespace Ticket.Application.Commands.TicketPlus.AutoReserve;
 
-public class AutoReserveDto
+public class CreateAutoReserveDto
 {
     /// <summary>
     /// 預約的結果

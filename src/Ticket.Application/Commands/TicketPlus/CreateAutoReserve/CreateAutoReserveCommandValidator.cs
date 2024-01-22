@@ -2,9 +2,9 @@
 
 namespace Ticket.Application.Commands.TicketPlus.AutoReserve;
 
-public class AutoReserveCommandValidator : AbstractValidator<AutoReserveCommand>
+public class CreateAutoReserveCommandValidator : AbstractValidator<CreateAutoReserveCommand>
 {
-    public AutoReserveCommandValidator()
+    public CreateAutoReserveCommandValidator()
     {
         RuleFor(x => x.ActivityId)
             .NotEmpty();

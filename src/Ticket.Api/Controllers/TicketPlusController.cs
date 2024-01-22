@@ -188,10 +188,10 @@ public class TicketPlusController : ControllerBase
     /// <returns></returns>
     [HttpPost]
     [Route("AutoReserve")]
-    [ProducesResponseType(typeof(AutoReserveDto), 200)]
+    [ProducesResponseType(typeof(CreateAutoReserveDto), 200)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    [CustomValidator(typeof(AutoReserveCommandValidator))]
-    public async Task<IActionResult> Post([FromBody] AutoReserveCommand autoReserveCommand, CancellationToken cancellationToken)
+    [CustomValidator(typeof(CreateAutoReserveCommandValidator))]
+    public async Task<IActionResult> Post([FromBody] CreateAutoReserveCommand autoReserveCommand, CancellationToken cancellationToken)
     {
         var result = await _mediator.Send(autoReserveCommand, cancellationToken);
         return Ok(result);
