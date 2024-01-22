@@ -171,7 +171,7 @@ public class TicketPlusController : ControllerBase
     /// <returns></returns>
     [HttpPost]
     [Route("Reserve")]
-    [ProducesResponseType(typeof(CreateReserveDto), StatusCodes.StatusStatusCodes.Status200OKOK)]
+    [ProducesResponseType(typeof(CreateReserveDto), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [CustomValidator(typeof(CreateReserveCommandValidator))]
     public async Task<IActionResult> Post([FromBody] CreateReserveCommand createReserveCommand)
