@@ -49,7 +49,7 @@ public class ProductConfig
 
     public bool Uncountable { get; set; }
 
-    public DateTime ProductIbonSaleStart { get; set; }
+    public DateTime? ProductIbonSaleStart { get; set; }
 
     public string Id { get; set; }
 
@@ -59,7 +59,7 @@ public class ProductConfig
 
     public bool ProductIbon { get; set; }
 
-    public DateTime ProductIbonSaleEnd { get; set; }
+    public DateTime? ProductIbonSaleEnd { get; set; }
 
     public bool ProductLimit { get; set; }
 

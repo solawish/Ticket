@@ -35,6 +35,13 @@ public class GetS3ProductInfoQueryHandler : IRequestHandler<GetS3ProductInfoQuer
         response.EnsureSuccessStatusCode();
 
         var result = await response.Content.ReadFromJsonAsync<GetS3ProductInfoDto>(cancellationToken: cancellationToken);
+
+        // 選擇特定場次
+        if (string.IsNullOrEmpty(request.SessionId) is false)
+        {
+            result.Products = result.Products.Where(x => x.SessionId.Equals(request.SessionId)).ToList();
+        }
+
         return result;
     }
 }

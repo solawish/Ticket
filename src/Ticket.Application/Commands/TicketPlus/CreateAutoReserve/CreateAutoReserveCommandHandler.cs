@@ -18,16 +18,16 @@ namespace Ticket.Application.Commands.TicketPlus.AutoReserve;
 /// <summary>
 /// 自動預約
 /// </summary>
-public class AutoReserveCommandHandler : IRequestHandler<AutoReserveCommand, AutoReserveDto>
+public class CreateAutoReserveCommandHandler : IRequestHandler<CreateAutoReserveCommand, CreateAutoReserveDto>
 {
     private readonly IMediator _mediator;
-    private readonly ILogger<AutoReserveCommandHandler> _logger;
+    private readonly ILogger<CreateAutoReserveCommandHandler> _logger;
     private readonly IMemoryCache _memoryCache;
-    private readonly int delayTime = 100;
+    private readonly int delayTime = 400;
 
-    public AutoReserveCommandHandler(
+    public CreateAutoReserveCommandHandler(
         IMediator mediator,
-        ILogger<AutoReserveCommandHandler> logger,
+        ILogger<CreateAutoReserveCommandHandler> logger,
         IMemoryCache memoryCache
         )
     {
@@ -36,16 +36,17 @@ public class AutoReserveCommandHandler : IRequestHandler<AutoReserveCommand, Aut
         _memoryCache = memoryCache;
     }
 
-    public async Task<AutoReserveDto> Handle(AutoReserveCommand request, CancellationToken cancellationToken)
+    public async Task<CreateAutoReserveDto> Handle(CreateAutoReserveCommand request, CancellationToken cancellationToken)
     {
-        // 透過 ActivityId 取得S3活動資訊
+        // 透過 ActivityId 取得S3特定場次活動資訊
         var s3ProductInfoQueryDto = _memoryCache.TryGetValue(
             string.Format(CacheKey.S3ProductInfoCacheKey, request.ActivityId),
             out GetS3ProductInfoDto cachesS3ProductInfoQueryDto)
             ? cachesS3ProductInfoQueryDto
             : await _mediator.Send(new GetS3ProductInfoQuery
             {
-                ActivityId = request.ActivityId
+                ActivityId = request.ActivityId,
+                SessionId = request.SessionId
             }, cancellationToken);
         if (s3ProductInfoQueryDto.Products is null || s3ProductInfoQueryDto.Products.Any() is false)
         {
@@ -134,7 +135,7 @@ public class AutoReserveCommandHandler : IRequestHandler<AutoReserveCommand, Aut
             if (cancellationToken.IsCancellationRequested)
             {
                 _logger.LogInformation("cancletoken 已過期, 使用者取消request");
-                return new AutoReserveDto { CreateReserveDto = new CreateReserveDto { } };
+                return new CreateAutoReserveDto { CreateReserveDto = new CreateReserveDto { } };
             }
 
             // 是否需要重新產生驗證碼
@@ -260,7 +261,7 @@ public class AutoReserveCommandHandler : IRequestHandler<AutoReserveCommand, Aut
 
                 case ReserveCodeEnum.UserLimitExceeded:
                     _logger.LogInformation("已經有訂單了");
-                    return new AutoReserveDto { CreateReserveDto = reserveResultDto };
+                    return new CreateAutoReserveDto { CreateReserveDto = reserveResultDto };
 
                 case ReserveCodeEnum.Success when reserveResultDto.Products.First().Status.Equals(OrderStatusEnum.RESERVED.ToString()):
                     _logger.LogInformation("預約成功");
@@ -269,7 +270,7 @@ public class AutoReserveCommandHandler : IRequestHandler<AutoReserveCommand, Aut
                         ActivityId = request.ActivityId,
                         Mobile = request.Mobile
                     }, cancellationToken);
-                    return new AutoReserveDto { CreateReserveDto = reserveResultDto };
+                    return new CreateAutoReserveDto { CreateReserveDto = reserveResultDto };
 
                 default:
                     isRegenerateCaptcha = false;
