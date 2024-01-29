@@ -24,6 +24,7 @@ public class CreateAutoReserveCommandHandler : IRequestHandler<CreateAutoReserve
     private readonly ILogger<CreateAutoReserveCommandHandler> _logger;
     private readonly IMemoryCache _memoryCache;
     private readonly int delayTime = 400;
+    private readonly int pendingDelayTime = 5000;
 
     public CreateAutoReserveCommandHandler(
         IMediator mediator,
@@ -256,7 +257,8 @@ public class CreateAutoReserveCommandHandler : IRequestHandler<CreateAutoReserve
                     _logger.LogInformation("等待結果中");
                     isRegenerateCaptcha = false;
                     isPending = true;
-                    await Task.Delay(delayTime, cancellationToken);
+                    var waitSecond = reserveResultDto.WaitSecond.Equals(default) ? pendingDelayTime : reserveResultDto.WaitSecond * 1000;
+                    await Task.Delay(waitSecond, cancellationToken);
                     break;
 
                 case ReserveCodeEnum.UserLimitExceeded:

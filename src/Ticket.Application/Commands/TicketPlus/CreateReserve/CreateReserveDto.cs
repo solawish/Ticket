@@ -39,4 +39,6 @@ public class CreateReserveDto : BaseResponse
     public string Hash { get; set; }
 
     public bool FinalizedSeats { get; set; }
+
+    public int WaitSecond { get; set; }
 }
