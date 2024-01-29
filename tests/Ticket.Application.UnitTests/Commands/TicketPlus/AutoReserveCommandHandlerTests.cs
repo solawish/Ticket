@@ -1220,6 +1220,7 @@ public class AutoReserveCommandHandlerTests
         var pendingReserveDto = fixture
             .Build<CreateReserveDto>()
             .With(x => x.ErrCode, ((int)ReserveCodeEnum.Pending).ToString())
+            .With(x => x.WaitSecond, 1)
             .Create();
 
         mediator.Setup(x => x.Send(It.IsAny<GetS3ProductInfoQuery>(), It.IsAny<CancellationToken>()))
