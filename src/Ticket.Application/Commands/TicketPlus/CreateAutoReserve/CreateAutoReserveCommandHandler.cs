@@ -236,16 +236,16 @@ public class CreateAutoReserveCommandHandler : IRequestHandler<CreateAutoReserve
                             if (isSoldOut)
                             {
                                 _logger.LogInformation("{expectProductId} 這票區數量為 0", expectProductId);
-                                var newArea = reCacheTicketConfigQueryDto.Result.Product
+                                var newProduct = reCacheTicketConfigQueryDto.Result.Product
                                     .Where(x => x.Count > 0)
                                     .OrderByDescending(x => x.Count);
-                                if (newArea.Any() is false)
+                                if (newProduct.Any() is false)
                                 {
                                     _logger.LogInformation("沒有其他有票的票區，使用原本的票區，ProductId: {expectProductId}", expectProductId);
                                 }
                                 else
                                 {
-                                    var newProductId = s3ProductInfoQueryDto.Products.First(x => x.TicketAreaId.Equals(newArea.First().Id)).ProductId;
+                                    var newProductId = newProduct.First().Id;
                                     _logger.LogInformation("找到有票的票區，ProductId: {newProductId}", newProductId);
                                     expectProductId = newProductId;
                                 }
