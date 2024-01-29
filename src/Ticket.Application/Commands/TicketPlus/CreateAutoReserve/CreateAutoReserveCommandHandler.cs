@@ -43,8 +43,8 @@ public class CreateAutoReserveCommandHandler : IRequestHandler<CreateAutoReserve
         // 透過 ActivityId 取得S3特定場次活動資訊
         var s3ProductInfoQueryDto = _memoryCache.TryGetValue(
             string.Format(CacheKey.S3ProductInfoCacheKey, request.ActivityId),
-            out GetS3ProductInfoDto cachesS3ProductInfoQueryDto)
-            ? cachesS3ProductInfoQueryDto
+            out GetS3ProductInfoDto cacheS3ProductInfoQueryDto)
+            ? cacheS3ProductInfoQueryDto
             : await _mediator.Send(new GetS3ProductInfoQuery
             {
                 ActivityId = request.ActivityId,
@@ -57,15 +57,15 @@ public class CreateAutoReserveCommandHandler : IRequestHandler<CreateAutoReserve
         _logger.LogInformation("{GetS3ProductInfoQuery}: {@s3ProductInfoQueryDto}", nameof(GetS3ProductInfoQuery), s3ProductInfoQueryDto);
 
         // 再從結果中的ProductId去取得票券的資訊
-        var ticketConfigQueryDto = _memoryCache.TryGetValue(
+        var productConfigQueryDto = _memoryCache.TryGetValue(
             string.Format(CacheKey.ProductConfigCacheKey, request.ActivityId),
-            out GetProductConfigDto cachesTicketConfigQueryDto)
-            ? cachesTicketConfigQueryDto
+            out GetProductConfigDto cacheProductConfigQueryDto)
+            ? cacheProductConfigQueryDto
             : await _mediator.Send(new GetProductConfigQuery
             {
                 ProductId = s3ProductInfoQueryDto.Products.Select(x => x.ProductId)
             }, cancellationToken);
-        _logger.LogInformation("{GetProductConfigQuery}: {@ticketConfigQueryDto}", nameof(GetProductConfigQuery), ticketConfigQueryDto);
+        _logger.LogInformation("{GetProductConfigQuery}: {@productConfigQueryDto}", nameof(GetProductConfigQuery), productConfigQueryDto);
 
         // 票區資訊來源
         var ticketCountSource = s3ProductInfoQueryDto.Products.Any(x => string.IsNullOrEmpty(x.TicketAreaId) is false)
@@ -75,8 +75,8 @@ public class CreateAutoReserveCommandHandler : IRequestHandler<CreateAutoReserve
         // 取得票區的資訊
         var areaConfigQueryDto = _memoryCache.TryGetValue(
             string.Format(CacheKey.AreaConfigCacheKey, request.ActivityId),
-            out GetAreaConfigDto cachesAreaConfigQueryDto)
-            ? cachesAreaConfigQueryDto
+            out GetAreaConfigDto cacheAreaConfigQueryDto)
+            ? cacheAreaConfigQueryDto
             : await _mediator.Send(new GetAreaConfigQuery
             {
                 TicketAreaId = s3ProductInfoQueryDto.Products.Where(x => string.IsNullOrEmpty(x.TicketAreaId) is false).Select(x => x.TicketAreaId)
@@ -102,55 +102,13 @@ public class CreateAutoReserveCommandHandler : IRequestHandler<CreateAutoReserve
 
         // 有沒有想要的票區
         var expectProductId = string.IsNullOrEmpty(request.AreaName) is false
-            ? GetAreaProductId(areaConfigQueryDto, s3ProductInfoQueryDto, request.AreaName)
-            : ticketConfigQueryDto.Result.Product.First().Id;
+            ? GetAreaProductId(areaConfigQueryDto, s3ProductInfoQueryDto, request.AreaName, ticketCountSource)
+            : productConfigQueryDto.Result.Product.First().Id;
 
         // 如果要自動避開已售完的票區需產生快取
         if (request.IsCheckCount)
         {
-            var processTicketCountTask = Task.Run(async () =>
-            {
-                while (cancellationToken.IsCancellationRequested is false)
-                {
-                    switch (ticketCountSource)
-                    {
-                        case TicketCountSource.Area:
-                            var newAreaConfigQueryDto = await _mediator.Send(new GetAreaConfigQuery
-                            {
-                                TicketAreaId = s3ProductInfoQueryDto.Products.Where(x => string.IsNullOrEmpty(x.TicketAreaId) is false).Select(x => x.TicketAreaId)
-                            }, cancellationToken);
-
-                            // 寫入快取
-                            _memoryCache.Set(
-                                string.Format(CacheKey.AreaConfigCacheKey, request.ActivityId),
-                                newAreaConfigQueryDto, TimeSpan.FromHours(1));
-
-                            var areaCountResult = newAreaConfigQueryDto.Result.TicketArea.Select(x => new { x.Id, x.Count });
-                            _logger.LogInformation("重新取得票區票數資訊: {@countMessage}", areaCountResult);
-                            break;
-
-                        case TicketCountSource.Product:
-                            var newProductConfigQueryDto = await _mediator.Send(new GetProductConfigQuery
-                            {
-                                ProductId = s3ProductInfoQueryDto.Products.Select(x => x.ProductId)
-                            }, cancellationToken);
-
-                            // 寫入快取
-                            _memoryCache.Set(
-                                string.Format(CacheKey.ProductConfigCacheKey, request.ActivityId),
-                                newProductConfigQueryDto, TimeSpan.FromHours(1));
-
-                            var productCountResult = newProductConfigQueryDto.Result.Product.Select(x => new { x.Id, x.Count });
-                            _logger.LogInformation("重新取得票區票數資訊: {@countMessage}", productCountResult);
-                            break;
-
-                        default:
-                            throw new ArgumentException("未定義的票區資訊來源");
-                    }
-
-                    await Task.Delay(checkCountTime, cancellationToken);
-                }
-            }, cancellationToken);
+            RunProcessTicketCountTask(ticketCountSource, s3ProductInfoQueryDto, request.ActivityId, cancellationToken);
         }
 
         // 是否需要重新產生驗證碼
@@ -176,7 +134,7 @@ public class CreateAutoReserveCommandHandler : IRequestHandler<CreateAutoReserve
                 // 產生驗證碼
                 captchaDto = await _mediator.Send(new GenerateCaptchaCommand
                 {
-                    SessionId = ticketConfigQueryDto.Result.Product.First().SessionId,
+                    SessionId = productConfigQueryDto.Result.Product.First().SessionId,
                     Token = accessTokenDto.UserInfo.Access_token
                 }, cancellationToken);
                 _logger.LogInformation("{GenerateCaptchaCommand}", nameof(GenerateCaptchaCommand));
@@ -229,14 +187,14 @@ public class CreateAutoReserveCommandHandler : IRequestHandler<CreateAutoReserve
                             string.Format(CacheKey.ProductConfigCacheKey, request.ActivityId),
                             out var outProductCacheValue))
                         {
-                            var reCacheTicketConfigQueryDto = outProductCacheValue as GetProductConfigDto;
-                            var isSoldOut = reCacheTicketConfigQueryDto.Result.Product.First(x => x.Id.Equals(expectProductId)).Count <= 0;
+                            var reCacheProductConfigQueryDto = outProductCacheValue as GetProductConfigDto;
+                            var isSoldOut = reCacheProductConfigQueryDto.Result.Product.First(x => x.Id.Equals(expectProductId)).Count <= 0;
 
                             // 如果是賣完了就找其他票區
                             if (isSoldOut)
                             {
                                 _logger.LogInformation("{expectProductId} 這票區數量為 0", expectProductId);
-                                var newProduct = reCacheTicketConfigQueryDto.Result.Product
+                                var newProduct = reCacheProductConfigQueryDto.Result.Product
                                     .Where(x => x.Count > 0)
                                     .OrderByDescending(x => x.Count);
                                 if (newProduct.Any() is false)
@@ -360,31 +318,100 @@ public class CreateAutoReserveCommandHandler : IRequestHandler<CreateAutoReserve
     /// <param name="areaConfigQueryDto"></param>
     /// <param name="s3ProductInfoQueryDto"></param>
     /// <param name="areaName"></param>
+    /// <param name="ticketCountSource"></param>
     /// <returns></returns>
     private string GetAreaProductId(
         GetAreaConfigDto areaConfigQueryDto,
         GetS3ProductInfoDto s3ProductInfoQueryDto,
-        string areaName)
+        string areaName,
+        TicketCountSource ticketCountSource)
     {
-        // 先找有沒有符合的票區，有些活動可能會沒有票區(tickerArea)只有票名(productName)
-        var area = areaConfigQueryDto.Result.TicketArea.FirstOrDefault(x => x.TicketAreaName.Contains(areaName));
-        if (area is null)
+        switch (ticketCountSource)
         {
-            _logger.LogInformation("找不到想要的票區，嘗試使用票名");
+            case TicketCountSource.Area:
+                var areaResult = areaConfigQueryDto.Result.TicketArea.Where(x => x.TicketAreaName.Contains(areaName));
+                if (areaResult.Any())
+                {
+                    _logger.LogInformation("找到想要的票區，AreaName: {TicketAreaName}", areaResult.First().TicketAreaName);
+                    return s3ProductInfoQueryDto.Products.FirstOrDefault(x => x.TicketAreaId.Equals(areaResult.First().Id)).ProductId;
+                }
+                break;
 
-            var product = s3ProductInfoQueryDto.Products.FirstOrDefault(x => x.Name.Contains(areaName));
-            if (product is null)
-            {
-                var defaultProductId = s3ProductInfoQueryDto.Products.First().ProductId;
-                _logger.LogInformation("找不到想要的票名，使用第一個產品ID， ProductId: {defaultProductId}", defaultProductId);
-                return defaultProductId;
-            }
+            case TicketCountSource.Product:
+                var productResult = s3ProductInfoQueryDto.Products.Where(x => x.Name.Contains(areaName));
+                if (productResult.Any())
+                {
+                    _logger.LogInformation("找到想要的票名，ProductName: {Name}", productResult.First().Name);
+                    return productResult.First().ProductId;
+                }
+                break;
 
-            _logger.LogInformation("找到想要的票名，ProductName: {Name}", product.Name);
-            return product.ProductId;
+            default:
+                throw new ArgumentException("未定義的票區資訊來源");
         }
-        var expectProductId = s3ProductInfoQueryDto.Products.FirstOrDefault(x => x.TicketAreaId.Equals(area.Id)).ProductId;
-        _logger.LogInformation("找到想要的票區，AreaName: {TicketAreaName}", area.TicketAreaName);
-        return expectProductId;
+
+        var defaultProductId = s3ProductInfoQueryDto.Products.First().ProductId;
+        _logger.LogInformation("找不到想要的票名，使用第一個產品ID， ProductId: {defaultProductId}", defaultProductId);
+        return defaultProductId;
+    }
+
+    /// <summary>
+    /// 執行定期取得票數的Task
+    /// </summary>
+    /// <param name="ticketCountSource"></param>
+    /// <param name="s3ProductInfoQueryDto"></param>
+    /// <param name="activityId"></param>
+    /// <param name="cancellationToken"></param>
+    /// <exception cref="ArgumentException"></exception>
+    private void RunProcessTicketCountTask(
+        TicketCountSource ticketCountSource,
+        GetS3ProductInfoDto s3ProductInfoQueryDto,
+        string activityId,
+        CancellationToken cancellationToken
+        )
+    {
+        var processTicketCountTask = Task.Run(async () =>
+        {
+            while (cancellationToken.IsCancellationRequested is false)
+            {
+                switch (ticketCountSource)
+                {
+                    case TicketCountSource.Area:
+                        var newAreaConfigQueryDto = await _mediator.Send(new GetAreaConfigQuery
+                        {
+                            TicketAreaId = s3ProductInfoQueryDto.Products.Where(x => string.IsNullOrEmpty(x.TicketAreaId) is false).Select(x => x.TicketAreaId)
+                        }, cancellationToken);
+
+                        // 寫入快取
+                        _memoryCache.Set(
+                            string.Format(CacheKey.AreaConfigCacheKey, activityId),
+                            newAreaConfigQueryDto, TimeSpan.FromHours(1));
+
+                        var areaCountResult = newAreaConfigQueryDto.Result.TicketArea.Select(x => new { x.Id, x.Count });
+                        _logger.LogInformation("重新取得票區票數資訊: {@countMessage}", areaCountResult);
+                        break;
+
+                    case TicketCountSource.Product:
+                        var newProductConfigQueryDto = await _mediator.Send(new GetProductConfigQuery
+                        {
+                            ProductId = s3ProductInfoQueryDto.Products.Select(x => x.ProductId)
+                        }, cancellationToken);
+
+                        // 寫入快取
+                        _memoryCache.Set(
+                            string.Format(CacheKey.ProductConfigCacheKey, activityId),
+                            newProductConfigQueryDto, TimeSpan.FromHours(1));
+
+                        var productCountResult = newProductConfigQueryDto.Result.Product.Select(x => new { x.Id, x.Count });
+                        _logger.LogInformation("重新取得票區票數資訊: {@countMessage}", productCountResult);
+                        break;
+
+                    default:
+                        throw new ArgumentException("未定義的票區資訊來源");
+                }
+
+                await Task.Delay(checkCountTime, cancellationToken);
+            }
+        }, cancellationToken);
     }
 }
