@@ -23,6 +23,8 @@ public class TicketAreaConfig
     //    "price": 2400,
     //    "hidden": false
     //}
+    public int Count { get; set; }
+
     public DateTime SaleStart { get; set; }
 
     public string TicketAreaName { get; set; }

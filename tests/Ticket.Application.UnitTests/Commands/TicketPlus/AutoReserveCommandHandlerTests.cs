@@ -96,7 +96,7 @@ public class AutoReserveCommandHandlerTests
 
     [Theory]
     [AutoTestingData]
-    public async Task Handle_AutoReserveCommandHandler_GiveValidRequest_WithAreaName_WithNoCheckCount_WithNoAnyCache_HaveCorrespondAreaName_ShouldUseCorrectArea_ReturnReserveSuccess(
+    public async Task Handle_AutoReserveCommandHandler_GiveValidRequest_WithAreaName_WithNoCheckCount_WithNoAnyCache_HasTicketArea_HaveCorrespondAreaName_ShouldUseCorrectArea_ReturnReserveSuccess(
         IFixture fixture,
         [Frozen] Mock<IMediator> mediator,
         CreateAutoReserveCommandHandler sut
@@ -182,7 +182,7 @@ public class AutoReserveCommandHandlerTests
 
     [Theory]
     [AutoTestingData]
-    public async Task Handle_AutoReserveCommandHandler_GiveValidRequest_WithAreaName_WithNoCheckCount_WithNoAnyCache_HaveSimilarAreaName_ShouldUseCorrectArea_ReturnReserveSuccess(
+    public async Task Handle_AutoReserveCommandHandler_GiveValidRequest_WithAreaName_WithNoCheckCount_WithNoAnyCache_HasTicketArea_HaveSimilarAreaName_ShouldUseCorrectArea_ReturnReserveSuccess(
         IFixture fixture,
         [Frozen] Mock<IMediator> mediator,
         CreateAutoReserveCommandHandler sut
@@ -269,7 +269,92 @@ public class AutoReserveCommandHandlerTests
 
     [Theory]
     [AutoTestingData]
-    public async Task Handle_AutoReserveCommandHandler_GiveValidRequest_WithAreaName_WithNoCheckCount_WithNoAnyCache_NotHaveCorrespondAreaName_HaveCorrespondTicketName_ShouldUseCorrectTicketName_ReturnReserveSuccess(
+    public async Task Handle_AutoReserveCommandHandler_GiveValidRequest_WithAreaName_WithNoCheckCount_WithNoAnyCache_HasTicketArea_NotHaveCorrespondAreaName_ShouleUseFirstProductId_ReturnReserveSuccess(
+        IFixture fixture,
+        [Frozen] Mock<IMediator> mediator,
+        CreateAutoReserveCommandHandler sut
+        )
+    {
+        // Arrange
+        var specificAreaName = "VIPAreaName";
+        var requestAreaName = "NoEqualNameQAQ";
+        var request = fixture
+            .Build<CreateAutoReserveCommand>()
+            .With(x => x.AreaName, requestAreaName)
+            .With(x => x.IsCheckCount, false)
+            .Create();
+
+        var product = fixture
+            .Build<Product>()
+            .CreateMany(3);
+        var getS3ProductInfoDto = fixture
+            .Build<GetS3ProductInfoDto>()
+            .With(x => x.Products, product)
+            .Create();
+        var getProductConfigDto = fixture
+            .Build<GetProductConfigDto>()
+            .Create();
+        var tiackeArea = fixture
+            .Build<TicketAreaConfig>()
+            .WithValues(x => x.TicketAreaName, fixture.Create<string>(), specificAreaName, fixture.Create<string>())
+            .WithValues(x => x.Id, product.Select(x => x.TicketAreaId).ToArray())
+            .CreateMany(3);
+        var getAreaConfigDto = fixture
+            .Build<GetAreaConfigDto>()
+            .With(x => x.Result, new AreaConfiResult { TicketArea = tiackeArea.ToList() })
+            .Create();
+        var accessTokenDto = fixture
+            .Build<GetAccessTokenDto>()
+            .Create();
+        var generateCaptchaDto = fixture
+            .Build<GenerateCaptchaDto>()
+            .Create();
+        var getCaptchaAnswerDto = fixture
+            .Build<GetCaptchaAnswerDto>()
+            .Create();
+        var reserveProductDto = fixture
+            .Build<OrderProduct>()
+            .With(x => x.Status, OrderStatusEnum.RESERVED.ToString())
+            .Create();
+        var createReserveDto = fixture
+            .Build<CreateReserveDto>()
+            .With(x => x.ErrCode, Const.SuccessCode)
+            .With(x => x.Products, new List<OrderProduct> { reserveProductDto })
+            .Create();
+
+        mediator.Setup(x => x.Send(It.IsAny<GetS3ProductInfoQuery>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(getS3ProductInfoDto);
+        mediator.Setup(x => x.Send(It.IsAny<GetProductConfigQuery>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(getProductConfigDto);
+        mediator.Setup(x => x.Send(It.IsAny<GetAreaConfigQuery>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(getAreaConfigDto);
+        mediator.Setup(x => x.Send(It.IsAny<GetAccessTokenQuery>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(accessTokenDto);
+        mediator.Setup(x => x.Send(It.IsAny<GenerateCaptchaCommand>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(generateCaptchaDto);
+        mediator.Setup(x => x.Send(It.IsAny<GetCaptchaAnswerQuery>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(getCaptchaAnswerDto);
+        mediator.Setup(x => x.Send(It.IsAny<CreateReserveCommand>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(createReserveDto);
+
+        // Act
+        var result = await sut.Handle(request, CancellationToken.None);
+
+        // Assert
+        result.ShouldNotBeNull();
+        Enum.Parse(typeof(ReserveCodeEnum), result.CreateReserveDto.ErrCode).ShouldBe(ReserveCodeEnum.Success);
+        result.CreateReserveDto.Products.ShouldNotBeNull();
+        result.CreateReserveDto.Products.Count.ShouldBe(1);
+        result.CreateReserveDto.Products.First().Status.ShouldBe(OrderStatusEnum.RESERVED.ToString());
+
+        // 確認送出預定的資料的productId有符合包含的ticketAreaName的對應的ProductId
+        mediator.Verify(x => x.Send(It.Is<CreateReserveCommand>(x =>
+            x.Products.First().ProductId.Equals(product.First().ProductId)), It.IsAny<CancellationToken>()), Times.Once);
+    }
+
+    [Theory]
+    [AutoTestingData]
+    public async Task Handle_AutoReserveCommandHandler_GiveValidRequest_WithAreaName_WithNoCheckCount_WithNoAnyCache_HasNoTicketArea_HaveCorrespondProductName_ShouldUseCorrectTicketName_ReturnReserveSuccess(
         IFixture fixture,
         [Frozen] Mock<IMediator> mediator,
         CreateAutoReserveCommandHandler sut
@@ -286,6 +371,7 @@ public class AutoReserveCommandHandlerTests
         var product = fixture
             .Build<Product>()
             .WithValues(x => x.Name, fixture.Create<string>(), expectedTicketName, fixture.Create<string>())
+            .Without(x => x.TicketAreaId)
             .CreateMany(3);
         var getS3ProductInfoDto = fixture
             .Build<GetS3ProductInfoDto>()
@@ -353,7 +439,7 @@ public class AutoReserveCommandHandlerTests
 
     [Theory]
     [AutoTestingData]
-    public async Task Handle_AutoReserveCommandHandler_GiveValidRequest_WithAreaName_WithNoCheckCount_WithNoAnyCache_NotHaveCorrespondAreaName_HaveSimilarTicketName_ShouldUseCorrectTicketName_ReturnReserveSuccess(
+    public async Task Handle_AutoReserveCommandHandler_GiveValidRequest_WithAreaName_WithNoCheckCount_WithNoAnyCache_HasNoTicketArea_HaveSimilarProductName_ShouldUseCorrectTicketName_ReturnReserveSuccess(
         IFixture fixture,
         [Frozen] Mock<IMediator> mediator,
         CreateAutoReserveCommandHandler sut
@@ -371,6 +457,7 @@ public class AutoReserveCommandHandlerTests
         var product = fixture
             .Build<Product>()
             .WithValues(x => x.Name, fixture.Create<string>(), specificTicketName, fixture.Create<string>())
+            .Without(x => x.TicketAreaId)
             .CreateMany(3);
         var getS3ProductInfoDto = fixture
             .Build<GetS3ProductInfoDto>()
@@ -438,7 +525,7 @@ public class AutoReserveCommandHandlerTests
 
     [Theory]
     [AutoTestingData]
-    public async Task Handle_AutoReserveCommandHandler_GiveValidRequest_WithAreaName_WithNoCheckCount_WithNoAnyCache_NotHaveCorrespondAreaName_NotHaveCorrespondTicketName_ShouleUseFirstProductId_ReturnReserveSuccess(
+    public async Task Handle_AutoReserveCommandHandler_GiveValidRequest_WithAreaName_WithNoCheckCount_WithNoAnyCache_HasNoTicketArea_NotHaveCorrespondProductName_ShouleUseFirstProductId_ReturnReserveSuccess(
         IFixture fixture,
         [Frozen] Mock<IMediator> mediator,
         CreateAutoReserveCommandHandler sut
@@ -457,6 +544,7 @@ public class AutoReserveCommandHandlerTests
         var product = fixture
             .Build<Product>()
             .WithValues(x => x.Name, fixture.Create<string>(), specificTicketName, fixture.Create<string>())
+            .Without(x => x.TicketAreaId)
             .CreateMany(3);
         var getS3ProductInfoDto = fixture
             .Build<GetS3ProductInfoDto>()
@@ -610,7 +698,7 @@ public class AutoReserveCommandHandlerTests
 
     [Theory]
     [AutoTestingData]
-    public async Task Handle_AutoReserveCommandHandler_GiveValidRequest_WithNoAreaName_WithCheckCount_WithProductConfigCache_DefaultProductHasNoCount_AnotherProductHasCount_SholuedChooseAnotherProduct_ReturnReserveSuccess(
+    public async Task Handle_AutoReserveCommandHandler_GiveValidRequest_WithNoAreaName_WithCheckCount_WithProductConfigCache_HasNoTicketArea_DefaultProductHasNoCount_AnotherProductHasCount_SholuedChooseAnotherProduct_ReturnReserveSuccess(
         IFixture fixture,
         [Frozen] Mock<IMediator> mediator,
         [Frozen] Mock<IMemoryCache> memoryCache,
@@ -625,6 +713,7 @@ public class AutoReserveCommandHandlerTests
             .Create();
 
         var products = fixture.Build<Product>()
+            .Without(x => x.TicketAreaId)
             .CreateMany(3);
         var getS3ProductInfoDto = fixture
             .Build<GetS3ProductInfoDto>()
@@ -691,6 +780,105 @@ public class AutoReserveCommandHandlerTests
         result.CreateReserveDto.Products.First().Status.ShouldBe(OrderStatusEnum.RESERVED.ToString());
         mediator.Verify(x => x.Send(It.Is<CreateReserveCommand>(x =>
                    x.Products.First().ProductId.Equals(productConfig.First(x => x.Count > 0).Id)), It.IsAny<CancellationToken>()), Times.Once);
+    }
+
+    [Theory]
+    [AutoTestingData]
+    public async Task Handle_AutoReserveCommandHandler_GiveValidRequest_WithNoAreaName_WithCheckCount_WithProductConfigCache_HasTicketArea_DefaultProductHasNoCount_AnotherProductHasCount_SholuedChooseAnotherProduct_ReturnReserveSuccess(
+        IFixture fixture,
+        [Frozen] Mock<IMediator> mediator,
+        [Frozen] Mock<IMemoryCache> memoryCache,
+        CreateAutoReserveCommandHandler sut
+        )
+    {
+        // Arrange
+        var request = fixture
+            .Build<CreateAutoReserveCommand>()
+            .With(x => x.AreaName, "")
+            .With(x => x.IsCheckCount, true)
+            .Create();
+
+        var products = fixture.Build<Product>()
+            .CreateMany(3);
+        var getS3ProductInfoDto = fixture
+            .Build<GetS3ProductInfoDto>()
+            .With(x => x.Products, products)
+            .Create();
+        var productConfig = fixture
+            .Build<ProductConfig>()
+            .WithValues(x => x.Id, products.Select(x => x.ProductId).ToArray())
+            .WithValues(x => x.Count, 0, 0, 100)
+            .CreateMany(3);
+        var getProductConfigDto = fixture
+            .Build<GetProductConfigDto>()
+            .With(x => x.Result, new Result { Product = productConfig.ToList() })
+            .Create();
+        var areaConfig = fixture
+            .Build<TicketAreaConfig>()
+            .WithValues(x => x.Id, products.Select(x => x.TicketAreaId).ToArray())
+            .WithValues(x => x.Count, 0, 0, 100)
+            .CreateMany(3);
+        var getAreaConfigDto = fixture
+            .Build<GetAreaConfigDto>()
+            .With(x => x.Result, new AreaConfiResult { TicketArea = areaConfig.ToList() })
+            .Create();
+        var accessTokenDto = fixture
+            .Build<GetAccessTokenDto>()
+            .Create();
+        var generateCaptchaDto = fixture
+            .Build<GenerateCaptchaDto>()
+            .Create();
+        var getCaptchaAnswerDto = fixture
+            .Build<GetCaptchaAnswerDto>()
+            .Create();
+        var reserveProductDto = fixture
+            .Build<OrderProduct>()
+            .With(x => x.Status, OrderStatusEnum.RESERVED.ToString())
+            .Create();
+        var createReserveDto = fixture
+            .Build<CreateReserveDto>()
+            .With(x => x.ErrCode, Const.SuccessCode)
+            .With(x => x.Products, new List<OrderProduct> { reserveProductDto })
+            .Create();
+
+        mediator.Setup(x => x.Send(It.IsAny<GetS3ProductInfoQuery>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(getS3ProductInfoDto);
+        mediator.Setup(x => x.Send(It.IsAny<GetProductConfigQuery>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(getProductConfigDto);
+        mediator.Setup(x => x.Send(It.IsAny<GetAreaConfigQuery>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(getAreaConfigDto);
+        mediator.Setup(x => x.Send(It.IsAny<GetAccessTokenQuery>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(accessTokenDto);
+        mediator.Setup(x => x.Send(It.IsAny<GenerateCaptchaCommand>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(generateCaptchaDto);
+        mediator.Setup(x => x.Send(It.IsAny<GetCaptchaAnswerQuery>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(getCaptchaAnswerDto);
+        mediator.Setup(x => x.Send(It.IsAny<CreateReserveCommand>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(createReserveDto);
+
+        object objProductConfigDto = getProductConfigDto as object;
+        memoryCache.Setup(x => x.TryGetValue(string.Format(Common.TicketPlus.CacheKey.ProductConfigCacheKey, request.ActivityId), out objProductConfigDto))
+            .Returns(true);
+        object objAreaConfigDto = getAreaConfigDto as object;
+        memoryCache.Setup(x => x.TryGetValue(string.Format(Common.TicketPlus.CacheKey.AreaConfigCacheKey, request.ActivityId), out objAreaConfigDto))
+            .Returns(true);
+
+        // Act
+        var result = await sut.Handle(request, CancellationToken.None);
+
+        // Assert
+        result.ShouldNotBeNull();
+        Enum.Parse(typeof(ReserveCodeEnum), result.CreateReserveDto.ErrCode).ShouldBe(ReserveCodeEnum.Success);
+        result.CreateReserveDto.Products.ShouldNotBeNull();
+        result.CreateReserveDto.Products.Count.ShouldBe(1);
+        result.CreateReserveDto.Products.First().Status.ShouldBe(OrderStatusEnum.RESERVED.ToString());
+        mediator.Verify(x => x.Send(It.Is<CreateReserveCommand>(x =>
+                   x.Products.First().ProductId.Equals(
+                       products.First(x => x.TicketAreaId.Equals(
+                           areaConfig.First(x => x.Count > 0).Id
+                           )
+                       ).ProductId
+                   )), It.IsAny<CancellationToken>()), Times.Once);
     }
 
     [Theory]
@@ -1220,6 +1408,7 @@ public class AutoReserveCommandHandlerTests
         var pendingReserveDto = fixture
             .Build<CreateReserveDto>()
             .With(x => x.ErrCode, ((int)ReserveCodeEnum.Pending).ToString())
+            .With(x => x.WaitSecond, 1)
             .Create();
 
         mediator.Setup(x => x.Send(It.IsAny<GetS3ProductInfoQuery>(), It.IsAny<CancellationToken>()))
