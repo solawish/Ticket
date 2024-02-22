@@ -1,7 +1,6 @@
 ﻿using Asp.Versioning.ApiExplorer;
 using Microsoft.AspNetCore.Mvc.Formatters;
 using Microsoft.AspNetCore.Rewrite;
-using Serilog;
 using System.Net;
 using System.Text.Encodings.Web;
 using System.Text.Json;
@@ -10,17 +9,10 @@ using Ticket.Api.Infrastructure.ApiVersion;
 using Ticket.Api.Infrastructure.Middleware;
 using Ticket.Api.Infrastructure.SwaggerConfigs;
 using Ticket.Application;
+using Ticket.Domain;
 using Ticket.Infrastructure;
 
 var builder = WebApplication.CreateBuilder(args);
-
-var logger = new LoggerConfiguration()
-    .ReadFrom.Configuration(builder.Configuration)
-    .Enrich.FromLogContext()
-    .CreateLogger();
-
-builder.Logging.ClearProviders();
-builder.Logging.AddSerilog(logger);
 
 // Add services to the container.
 
@@ -50,9 +42,9 @@ builder.Services.AddControllers(options =>
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-builder.Services.AddHttpClient();
 builder.Services.AddApplicationServices(builder.Configuration);
 builder.Services.AddInfrastructure(builder.Configuration);
+builder.Services.AddDomainServices(builder.Configuration);
 
 // Api Version
 builder.Services.AddApiVersion();
